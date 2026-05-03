@@ -1,0 +1,18 @@
+{
+  "name": "Snowee POS",
+  "short_name": "Snowee",
+  "description": "Snowee Food Cart Point of Sale",
+  "start_url": "/snowee-pos/snowee.html",
+  "display": "standalone",
+  "background_color": "#1B3A6B",
+  "theme_color": "#1B3A6B",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
