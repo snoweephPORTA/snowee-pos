@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snowee Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--navy-mid:#234a87;--navy-light:#2d5aa8;
+  --yellow:#FFD700;--yellow-dark:#E6BE00;--yellow-light:#FFF9C4;
+  --white:#FFFFFF;--offwhite:#F4F7FF;--blue-light:#E8EEF8;
+  --red:#E63946;--green:#22C55E;--gray:#6B7A99;
+  --shadow:0 4px 18px rgba(27,58,107,.12);--radius:14px;--radius-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--offwhite);color:var(--navy);}
+
+/* ── Login Screen ── */
+#login-screen{position:fixed;inset:0;background:var(--navy);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:1000;padding:30px;}
+#login-screen.hidden{display:none;}
+.login-logo{font-family:'Black Han Sans',sans-serif;font-size:36px;color:var(--yellow);letter-spacing:2px;}
+.login-logo span{color:white;}
+.login-sub{font-size:13px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:2px;text-transform:uppercase;}
+.login-input{background:rgba(255,255,255,.1);border:2px solid rgba(255,215,0,.3);border-radius:12px;padding:14px 18px;font-size:18px;color:white;width:100%;max-width:320px;outline:none;text-align:center;letter-spacing:4px;font-family:'Black Han Sans',sans-serif;}
+.login-input:focus{border-color:var(--yellow);}
+.login-btn{background:var(--yellow);color:var(--navy);border:none;border-radius:12px;font-family:'Black Han Sans',sans-serif;font-size:18px;padding:14px;width:100%;max-width:320px;cursor:pointer;}
+.login-err{color:#ff6b6b;font-size:12px;font-weight:800;min-height:16px;}
+
+/* ── Main App ── */
+#app{display:none;flex-direction:column;min-height:100%;}
+#app.visible{display:flex;}
+
+/* Top nav */
+.topnav{background:var(--navy);border-bottom:3px solid var(--yellow);padding:0 14px;height:55px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{font-family:'Black Han Sans',sans-serif;color:var(--yellow);font-size:18px;}
+.logo span{color:#fff;}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.refresh-btn{background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);border-radius:8px;color:var(--yellow);font-size:11px;font-weight:800;padding:5px 10px;cursor:pointer;}
+.last-update{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);}
+
+/* Tab bar */
+.tabbar{background:var(--navy);border-bottom:2px solid rgba(255,215,0,.2);display:flex;padding:0 10px 10px;gap:6px;flex-shrink:0;}
+.tabbtn{flex:1;background:rgba(255,255,255,.08);border:2px solid rgba(255,215,0,.2);border-radius:10px;color:rgba(255,255,255,.6);font-family:'Black Han Sans',sans-serif;font-size:11px;padding:7px 4px;cursor:pointer;text-align:center;}
+.tabbtn.active{background:var(--yellow);border-color:var(--yellow);color:var(--navy);}
+
+/* Content */
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;display:flex;flex-direction:column;gap:10px;}
+.tab-panel{display:none;}
+.tab-panel.active{display:flex;flex-direction:column;gap:10px;}
+
+/* Cards */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:2px solid var(--blue-light);overflow:hidden;}
+.card-hd{background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--yellow);}
+.card-sub{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);}
+.card-body{padding:12px 14px;}
+
+/* Big stat */
+.big-stat{text-align:center;padding:16px 12px;}
+.big-num{font-family:'Black Han Sans',sans-serif;font-size:42px;color:var(--navy);line-height:1;}
+.big-lbl{font-size:11px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-top:4px;}
+.big-sub{font-size:12px;font-weight:700;color:var(--green);margin-top:2px;}
+
+/* Stat grid */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px;}
+.stat-item{text-align:center;}
+.stat-num{font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--navy);}
+.stat-lbl{font-size:9px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+
+/* Pay bar */
+.pay-row{display:flex;padding:10px 14px;gap:8px;}
+.pay-item{flex:1;text-align:center;background:var(--offwhite);border-radius:8px;padding:8px 4px;}
+.pay-num{font-family:'Black Han Sans',sans-serif;font-size:16px;color:var(--navy);}
+.pay-lbl{font-size:9px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+
+/* Bar chart */
+.bar-chart{padding:10px 14px 6px;}
+.bars{display:flex;align-items:flex-end;gap:3px;height:60px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;}
+.bar-fill{border-radius:3px 3px 0 0;width:100%;min-height:2px;background:var(--yellow);transition:height .3s;}
+.bar-lbl{font-size:7px;font-weight:800;color:var(--gray);}
+.bar-val{font-size:7px;font-weight:900;color:var(--navy-mid);}
+
+/* Rankings */
+.rank-list{display:flex;flex-direction:column;}
+.rank-item{display:flex;align-items:center;padding:8px 14px;border-bottom:1px solid var(--blue-light);gap:8px;}
+.rank-item:last-child{border-bottom:none;}
+.rank-num{font-family:'Black Han Sans',sans-serif;font-size:13px;width:20px;text-align:center;}
+.rn1{color:var(--yellow);}
+.rn2{color:#C0C0C0;}
+.rn3{color:#CD7F32;}
+.rnn{color:var(--gray);}
+.rank-info{flex:1;}
+.rank-name{font-weight:800;font-size:12px;color:var(--navy);}
+.rank-bar-wrap{background:var(--blue-light);border-radius:3px;height:4px;margin-top:3px;}
+.rank-bar-fill{background:var(--yellow);border-radius:3px;height:4px;}
+.rank-right{text-align:right;}
+.rank-qty{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--navy);}
+.rank-rev{font-size:10px;font-weight:700;color:var(--gray);}
+
+/* Prep guide */
+.prep-list{display:flex;flex-direction:column;}
+.prep-item{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--blue-light);}
+.prep-item:last-child{border-bottom:none;}
+.prep-name{font-weight:800;font-size:12px;color:var(--navy);}
+.prep-cat{font-size:10px;color:var(--gray);font-weight:700;}
+.prep-qty{font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--navy);}
+.prep-unit{font-size:10px;font-weight:700;color:var(--gray);}
+
+/* Weekly chart */
+.week-chart{padding:10px 14px 6px;}
+.week-bars{display:flex;align-items:flex-end;gap:4px;height:80px;}
+.week-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;}
+.week-fill{border-radius:4px 4px 0 0;width:100%;min-height:2px;}
+.week-lbl{font-size:8px;font-weight:800;color:var(--gray);}
+.week-val{font-size:7px;font-weight:900;color:var(--navy-mid);}
+
+/* Week stats */
+.week-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:10px 14px;}
+.ws{background:var(--offwhite);border-radius:8px;padding:8px 6px;text-align:center;}
+.ws-num{font-family:'Black Han Sans',sans-serif;font-size:15px;color:var(--navy);}
+.ws-lbl{font-size:8px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+
+/* Empty state */
+.empty{text-align:center;padding:40px 20px;color:var(--gray);font-weight:700;font-size:13px;}
+
+/* Loading */
+.loading{text-align:center;padding:40px;color:var(--gray);}
+.spinner{width:32px;height:32px;border:3px solid var(--blue-light);border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Toast */
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--yellow);font-weight:900;font-size:12px;padding:8px 16px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:500;white-space:nowrap;border:2px solid var(--yellow);}
+.toast.show{opacity:1;}
+
+/* AI Advisor */
+.advisor-wrap{display:flex;flex-direction:column;gap:8px;}
+.quick-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.qbtn{background:var(--white);border:2px solid var(--blue-light);border-radius:10px;padding:10px 8px;font-size:11px;font-weight:800;color:var(--navy);cursor:pointer;text-align:left;line-height:1.3;}
+.qbtn:active{background:var(--yellow-light);border-color:var(--yellow);}
+.chat-box{background:var(--white);border-radius:var(--radius);border:2px solid var(--blue-light);display:flex;flex-direction:column;min-height:300px;max-height:500px;}
+.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:85%;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:700;line-height:1.5;}
+.msg.user{background:var(--navy);color:white;align-self:flex-end;border-radius:12px 12px 2px 12px;}
+.msg.ai{background:var(--offwhite);color:var(--navy);align-self:flex-start;border-radius:12px 12px 12px 2px;border:1px solid var(--blue-light);}
+.msg.ai.loading{color:var(--gray);}
+.chat-input-row{display:flex;gap:6px;padding:8px;border-top:2px solid var(--blue-light);}
+.chat-input{flex:1;background:var(--offwhite);border:2px solid var(--blue-light);border-radius:8px;padding:8px 10px;font-size:13px;font-weight:700;color:var(--navy);outline:none;}
+.chat-input:focus{border-color:var(--yellow);}
+.send-btn{background:var(--yellow);border:none;border-radius:8px;padding:8px 14px;font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--navy);cursor:pointer;}
+</style>
+</head>
+<body>
+
+<!-- Login Screen -->
+<div id="login-screen">
+  <div style="text-align:center;">
+    <div class="login-logo">sn<span>ow</span>ee</div>
+    <div class="login-sub">Owner Dashboard</div>
+  </div>
+  <input class="login-input" type="password" id="pin-input" placeholder="••••" maxlength="4" inputmode="numeric" oninput="checkLogin()">
+  <div class="login-err" id="login-err"></div>
+  <button class="login-btn" onclick="doLogin()">Enter →</button>
+</div>
+
+<!-- Main App -->
+<div id="app">
+  <div class="topnav">
+    <div class="logo">sn<span>ow</span>ee <span style="font-size:11px;color:rgba(255,255,255,.5);font-family:'Nunito',sans-serif;font-weight:800;">Analytics</span></div>
+    <div class="nav-right">
+      <div class="last-update" id="last-update">—</div>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+  </div>
+  <div class="tabbar">
+    <button class="tabbtn active" onclick="switchTab('today')">📊 Today</button>
+    <button class="tabbtn" onclick="switchTab('weekly')">📅 Weekly</button>
+    <button class="tabbtn" onclick="switchTab('prep')">📦 Prep</button>
+    <button class="tabbtn" onclick="switchTab('ai')">🤖 Advisor</button>
+  </div>
+  <div class="content">
+
+    <!-- TODAY TAB -->
+    <div class="tab-panel active" id="tab-today">
+      <div id="today-loading" class="loading"><div class="spinner"></div>Loading data...</div>
+      <div id="today-content" style="display:none;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <!-- WEEKLY TAB -->
+    <div class="tab-panel" id="tab-weekly">
+      <div id="weekly-loading" class="loading"><div class="spinner"></div>Loading data...</div>
+      <div id="weekly-content" style="display:none;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <!-- PREP TAB -->
+    <div class="tab-panel" id="tab-prep">
+      <div id="prep-loading" class="loading"><div class="spinner"></div>Calculating prep guide...</div>
+      <div id="prep-content" style="display:none;flex-direction:column;gap:10px;"></div>
+    </div>
+
+    <!-- AI ADVISOR TAB -->
+    <div class="tab-panel" id="tab-ai">
+      <div class="advisor-wrap">
+        <div class="card">
+          <div class="card-hd"><span class="card-title">🤖 AI Business Advisor</span><span class="card-sub">Powered by Claude</span></div>
+          <div class="card-body" style="padding:10px;">
+            <div style="font-size:11px;font-weight:700;color:var(--gray);margin-bottom:8px;">Quick questions:</div>
+            <div class="quick-btns" id="quick-btns">
+              <button class="qbtn" onclick="askQuestion('How are we doing this week? Give me a summary.')">📈 How are we doing this week?</button>
+              <button class="qbtn" onclick="askQuestion('What is our best selling item and why do you think it sells well?')">🏆 Best seller?</button>
+              <button class="qbtn" onclick="askQuestion('Which items are selling poorly and should we consider removing from the menu?')">📉 Slow movers?</button>
+              <button class="qbtn" onclick="askQuestion('When is our peak hour and what does that mean for staffing?')">🕐 Peak hours?</button>
+              <button class="qbtn" onclick="askQuestion('How much have we made this month total?')">💰 Monthly total?</button>
+              <button class="qbtn" onclick="askQuestion('Based on recent sales, what should I prepare more of tomorrow?')">📦 Prep for tomorrow?</button>
+            </div>
+          </div>
+        </div>
+        <div class="chat-box">
+          <div class="chat-msgs" id="chat-msgs">
+            <div class="msg ai">👋 Kamusta! I'm your Snowee business advisor. I have access to your sales data. Ask me anything in English or Filipino!</div>
+          </div>
+          <div class="chat-input-row">
+            <input class="chat-input" id="chat-input" type="text" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="send-btn" onclick="sendChat()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──
+const DASHBOARD_PIN = '1234'; // Change this!
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwWGvfW51qOt22VaDqJT-W9q60LIOepw2m-G8IFsvbLct8e820uIVab2SnLV86oBacd/exec';
+const ANTHROPIC_KEY = ''; // Leave empty — handled by Claude
+
+const fmt = n => Number(n).toLocaleString('en-PH');
+const fmtK = n => n >= 1000 ? '₱' + (n/1000).toFixed(1) + 'k' : '₱' + fmt(n);
+
+let allData = [];
+let currentTab = 'today';
+
+// ── LOGIN ──
+function checkLogin(){
+  const v = document.getElementById('pin-input').value;
+  if(v.length === 4) doLogin();
+}
+function doLogin(){
+  const pin = document.getElementById('pin-input').value;
+  if(pin === DASHBOARD_PIN){
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app').classList.add('visible');
+    loadData();
+  } else {
+    document.getElementById('login-err').textContent = '❌ Wrong PIN';
+    document.getElementById('pin-input').value = '';
+    setTimeout(()=>document.getElementById('login-err').textContent='', 2000);
+  }
+}
+
+// ── DATA LOADING ──
+async function loadData(){
+  toast('↻ Refreshing data...');
+  try {
+    const res = await fetch(SHEETS_URL);
+    const json = await res.json();
+    if(json.status === 'ok'){
+      allData = json.rows.filter(r => r.date);
+      document.getElementById('last-update').textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      renderCurrentTab();
+      toast('✅ Data loaded!');
+    } else {
+      toast('❌ Error loading data');
+    }
+  } catch(e) {
+    toast('❌ Cannot connect to Sheets');
+    console.error(e);
+  }
+}
+
+function renderCurrentTab(){
+  if(currentTab==='today') renderToday();
+  else if(currentTab==='weekly') renderWeekly();
+  else if(currentTab==='prep') renderPrep();
+}
+
+// ── TAB SWITCHING ──
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.tabbtn')[['today','weekly','prep','ai'].indexOf(tab)].classList.add('active');
+  if(tab !== 'ai') renderCurrentTab();
+}
+
+// ── TODAY ──
+function renderToday(){
+  const todayStr = new Date().toISOString().split('T')[0];
+  const todayRows = allData.filter(r => r.date === todayStr);
+  
+  document.getElementById('today-loading').style.display = 'none';
+  const el = document.getElementById('today-content');
+  el.style.display = 'flex';
+
+  if(!todayRows.length){
+    el.innerHTML = '<div class="empty">📭 No orders yet today</div>';
+    return;
+  }
+
+  // Aggregate by order
+  const orders = {};
+  todayRows.forEach(r => {
+    if(!orders[r.queue]) orders[r.queue] = {total:0, payment:r.payment, timeDone:r.timeDone, timeCreated:r.timeCreated||r.time, durationSecs:r.durationSecs};
+    orders[r.queue].total = r.order_total;
+  });
+  const orderList = Object.values(orders);
+  const revenue = orderList.reduce((s,o)=>s+(parseFloat(o.total)||0),0);
+  const avgOrder = orderList.length ? revenue/orderList.length : 0;
+  const cashOrders = orderList.filter(o=>o.payment==='Cash');
+  const gcashOrders = orderList.filter(o=>o.payment==='GCash');
+  const cashRev = cashOrders.reduce((s,o)=>s+(parseFloat(o.total)||0),0);
+  const gcashRev = gcashOrders.reduce((s,o)=>s+(parseFloat(o.total)||0),0);
+  
+  // Avg time
+  const timedOrders = orderList.filter(o=>o.durationSecs&&parseFloat(o.durationSecs)>0);
+  const avgSecs = timedOrders.length ? timedOrders.reduce((s,o)=>s+parseFloat(o.durationSecs),0)/timedOrders.length : 0;
+  const avgTimeStr = avgSecs>0 ? (Math.floor(avgSecs/60)+'m '+(Math.round(avgSecs%60))+'s') : '—';
+
+  // Items
+  const imap = {};
+  todayRows.forEach(r=>{
+    if(!imap[r.item])imap[r.item]={name:r.item,qty:0,rev:0};
+    imap[r.item].qty+=parseInt(r.qty)||0;
+    imap[r.item].rev+=parseFloat(r.subtotal)||0;
+  });
+  const items = Object.values(imap).sort((a,b)=>b.qty-a.qty);
+  const maxQty = items.length?items[0].qty:1;
+
+  // Hours
+  const hmap={};
+  for(let h=6;h<=22;h++)hmap[h]=0;
+  todayRows.forEach(r=>{
+    const h=r.time?new Date('2000-01-01 '+r.time).getHours():6;
+    if(hmap[h]!==undefined)hmap[h]+=(parseFloat(r.subtotal)||0);
+  });
+  const maxH=Math.max(...Object.values(hmap),1);
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-hd"><span class="card-title">💰 Today's Revenue</span><span class="card-sub">${todayStr}</span></div>
+      <div class="big-stat">
+        <div class="big-num">₱${fmt(revenue.toFixed(0))}</div>
+        <div class="big-lbl">Total Revenue</div>
+      </div>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="stat-num">${orderList.length}</div><div class="stat-lbl">Orders</div></div>
+        <div class="stat-item"><div class="stat-num">₱${fmt(avgOrder.toFixed(0))}</div><div class="stat-lbl">Avg Order</div></div>
+        <div class="stat-item"><div class="stat-num">${timedOrders.length?avgTimeStr:'—'}</div><div class="stat-lbl">Avg Time</div></div>
+        <div class="stat-item"><div class="stat-num">${todayRows.reduce((s,r)=>s+(parseInt(r.qty)||0),0)}</div><div class="stat-lbl">Items Sold</div></div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-item"><div class="pay-num">₱${fmt(cashRev.toFixed(0))}</div><div class="pay-lbl">💵 Cash · ${cashOrders.length}</div></div>
+        <div class="pay-item"><div class="pay-num" style="color:#007AFF">₱${fmt(gcashRev.toFixed(0))}</div><div class="pay-lbl">📱 GCash · ${gcashOrders.length}</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><span class="card-title">⏰ Sales by Hour</span></div>
+      <div class="bar-chart">
+        <div class="bars">
+          ${Object.entries(hmap).map(([h,v])=>`
+            <div class="bar-col">
+              <div class="bar-val">${v>0?fmtK(v):''}</div>
+              <div class="bar-fill" style="height:${v?Math.max(4,(v/maxH)*50):2}px;background:${v?'var(--yellow)':'var(--blue-light)'}"></div>
+              <div class="bar-lbl">${h%12||12}${Number(h)<12?'a':'p'}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items Today</span></div>
+      <div class="rank-list">
+        ${items.slice(0,8).map((it,i)=>`
+          <div class="rank-item">
+            <div class="rank-num ${i===0?'rn1':i===1?'rn2':i===2?'rn3':'rnn'}">${i+1}</div>
+            <div class="rank-info">
+              <div class="rank-name">${it.name}</div>
+              <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${(it.qty/maxQty*100).toFixed(0)}%"></div></div>
+            </div>
+            <div class="rank-right">
+              <div class="rank-qty">${it.qty}x</div>
+              <div class="rank-rev">₱${fmt(it.rev.toFixed(0))}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── WEEKLY ──
+function renderWeekly(){
+  document.getElementById('weekly-loading').style.display='none';
+  const el=document.getElementById('weekly-content');
+  el.style.display='flex';
+
+  // Get last 7 days
+  const days=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+
+  const dayTotals=days.map(d=>{
+    const rows=allData.filter(r=>r.date===d);
+    const orders={};
+    rows.forEach(r=>{if(!orders[r.queue])orders[r.queue]={total:parseFloat(r.order_total)||0};});
+    return{date:d,revenue:Object.values(orders).reduce((s,o)=>s+o.total,0),orders:Object.keys(orders).length,label:new Date(d+'T00:00:00').toLocaleDateString([],{weekday:'short'})};
+  });
+
+  const maxRev=Math.max(...dayTotals.map(d=>d.revenue),1);
+  const thisWeekRev=dayTotals.reduce((s,d)=>s+d.revenue,0);
+  const bestDay=dayTotals.reduce((a,b)=>b.revenue>a.revenue?b:a,dayTotals[0]);
+  const worstDay=dayTotals.filter(d=>d.revenue>0).reduce((a,b)=>b.revenue<a.revenue?b:a,dayTotals[0]);
+  const avgDay=dayTotals.filter(d=>d.revenue>0);
+  const avgDayRev=avgDay.length?thisWeekRev/avgDay.length:0;
+
+  // Top items this week
+  const weekRows=allData.filter(r=>days.includes(r.date));
+  const imap={};
+  weekRows.forEach(r=>{
+    if(!imap[r.item])imap[r.item]={name:r.item,qty:0,rev:0};
+    imap[r.item].qty+=parseInt(r.qty)||0;
+    imap[r.item].rev+=parseFloat(r.subtotal)||0;
+  });
+  const items=Object.values(imap).sort((a,b)=>b.qty-a.qty);
+  const maxQty=items.length?items[0].qty:1;
+
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📅 This Week</span><span class="card-sub">Last 7 days</span></div>
+      <div class="week-chart">
+        <div class="week-bars">
+          ${dayTotals.map(d=>`
+            <div class="week-col">
+              <div class="week-val">${d.revenue>0?fmtK(d.revenue):''}</div>
+              <div class="week-fill" style="height:${d.revenue?Math.max(4,(d.revenue/maxRev)*70):2}px;background:${d.date===new Date().toISOString().split('T')[0]?'var(--yellow)':d.revenue>0?'var(--navy-light)':'var(--blue-light)'}"></div>
+              <div class="week-lbl">${d.label}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="week-stats">
+        <div class="ws"><div class="ws-num">₱${fmt(thisWeekRev.toFixed(0))}</div><div class="ws-lbl">Week Total</div></div>
+        <div class="ws"><div class="ws-num">₱${fmt(avgDayRev.toFixed(0))}</div><div class="ws-lbl">Daily Avg</div></div>
+        <div class="ws"><div class="ws-num">${dayTotals.reduce((s,d)=>s+d.orders,0)}</div><div class="ws-lbl">Orders</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📊 Day Highlights</span></div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;background:var(--offwhite);padding:8px 10px;border-radius:8px;">
+            <div><div style="font-size:10px;font-weight:800;color:var(--green);text-transform:uppercase;">🏆 Best Day</div><div style="font-weight:800;font-size:12px;">${new Date(bestDay.date+'T00:00:00').toLocaleDateString([],{weekday:'long',month:'short',day:'numeric'})}</div></div>
+            <div style="font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--navy);">₱${fmt(bestDay.revenue.toFixed(0))}</div>
+          </div>
+          ${worstDay&&worstDay.revenue>0?`<div style="display:flex;justify-content:space-between;align-items:center;background:var(--offwhite);padding:8px 10px;border-radius:8px;">
+            <div><div style="font-size:10px;font-weight:800;color:var(--gray);text-transform:uppercase;">📉 Slowest Day</div><div style="font-weight:800;font-size:12px;">${new Date(worstDay.date+'T00:00:00').toLocaleDateString([],{weekday:'long',month:'short',day:'numeric'})}</div></div>
+            <div style="font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--navy);">₱${fmt(worstDay.revenue.toFixed(0))}</div>
+          </div>`:''}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items This Week</span></div>
+      <div class="rank-list">
+        ${items.slice(0,8).map((it,i)=>`
+          <div class="rank-item">
+            <div class="rank-num ${i===0?'rn1':i===1?'rn2':i===2?'rn3':'rnn'}">${i+1}</div>
+            <div class="rank-info">
+              <div class="rank-name">${it.name}</div>
+              <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${(it.qty/maxQty*100).toFixed(0)}%"></div></div>
+            </div>
+            <div class="rank-right">
+              <div class="rank-qty">${it.qty}x</div>
+              <div class="rank-rev">₱${fmt(it.rev.toFixed(0))}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── PREP GUIDE ──
+function renderPrep(){
+  document.getElementById('prep-loading').style.display='none';
+  const el=document.getElementById('prep-content');
+  el.style.display='flex';
+
+  // Get last 14 days
+  const days=[];
+  for(let i=1;i<=14;i++){
+    const d=new Date();d.setDate(d.getDate()-i);
+    days.push(d.toISOString().split('T')[0]);
+  }
+
+  const daysWithData=new Set(allData.filter(r=>days.includes(r.date)).map(r=>r.date));
+  const numDays=Math.max(daysWithData.size,1);
+
+  const imap={};
+  allData.filter(r=>days.includes(r.date)).forEach(r=>{
+    const key=r.item+'|'+r.category;
+    if(!imap[key])imap[key]={name:r.item,cat:r.category||'',total:0};
+    imap[key].total+=parseInt(r.qty)||0;
+  });
+
+  const items=Object.values(imap)
+    .map(it=>({...it,avg:Math.ceil(it.total/numDays)}))
+    .sort((a,b)=>b.avg-a.avg)
+    .filter(it=>it.avg>0);
+
+  const tomorrow=new Date();
+  tomorrow.setDate(tomorrow.getDate()+1);
+  const tomorrowDay=tomorrow.toLocaleDateString([],{weekday:'long'});
+
+  el.innerHTML=`
+    <div class="card">
+      <div class="card-hd">
+        <span class="card-title">📦 Prep Guide</span>
+        <span class="card-sub">For ${tomorrowDay}</span>
+      </div>
+      <div class="card-body" style="padding:8px 14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--gray);margin-bottom:6px;">Based on last ${numDays} days average. Prepare at least:</div>
+      </div>
+      <div class="prep-list">
+        ${items.map(it=>`
+          <div class="prep-item">
+            <div>
+              <div class="prep-name">${it.name}</div>
+              <div class="prep-cat">${it.cat}</div>
+            </div>
+            <div style="text-align:right;">
+              <div class="prep-qty">${it.avg}</div>
+              <div class="prep-unit">pcs/day</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">💡 Tip</span></div>
+      <div class="card-body">
+        <div style="font-size:12px;font-weight:700;color:var(--navy);line-height:1.6;">
+          These numbers are daily averages from the last ${numDays} days. 
+          On busy days (weekends) prepare <strong>20-30% more</strong>. 
+          On slow days prepare <strong>10-20% less</strong>.
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── AI ADVISOR ──
+let chatHistory = [];
+
+async function askQuestion(q){
+  document.getElementById('chat-input').value = q;
+  await sendChat();
+}
+
+async function sendChat(){
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if(!msg) return;
+  input.value = '';
+
+  addMessage(msg, 'user');
+  const loadingEl = addMessage('⏳ Thinking...', 'ai loading');
+
+  // Build context from data
+  const todayStr = new Date().toISOString().split('T')[0];
+  const last30 = allData.filter(r=>{
+    const d = new Date(r.date);
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate()-30);
+    return d >= cutoff;
+  });
+
+  // Summarize data for context
+  const orders = {};
+  last30.forEach(r=>{
+    const key = r.date+'|'+r.queue;
+    if(!orders[key])orders[key]={date:r.date,total:parseFloat(r.order_total)||0,payment:r.payment,duration:r.durationSecs};
+  });
+  const orderList = Object.values(orders);
+  const totalRev = orderList.reduce((s,o)=>s+o.total,0);
+
+  const imap={};
+  last30.forEach(r=>{
+    if(!imap[r.item])imap[r.item]={name:r.item,qty:0,rev:0};
+    imap[r.item].qty+=parseInt(r.qty)||0;
+    imap[r.item].rev+=parseFloat(r.subtotal)||0;
+  });
+  const topItems = Object.values(imap).sort((a,b)=>b.qty-a.qty).slice(0,10);
+  const slowItems = Object.values(imap).sort((a,b)=>a.qty-b.qty).slice(0,5);
+
+  const dayMap={};
+  orderList.forEach(o=>{if(!dayMap[o.date])dayMap[o.date]=0;dayMap[o.date]+=o.total;});
+  const days=Object.entries(dayMap).sort((a,b)=>a[0].localeCompare(b[0]));
+
+  const context = `
+You are a business advisor for Snowee PH, a Filipino food cart selling waffles, ice cream, milkshakes and coffee.
+You have access to their last 30 days of sales data. Answer in a friendly, practical way. You can use Filipino words naturally.
+
+SALES DATA SUMMARY (Last 30 days):
+- Total Revenue: ₱${fmt(totalRev.toFixed(0))}
+- Total Orders: ${orderList.length}
+- Average Order Value: ₱${orderList.length?(totalRev/orderList.length).toFixed(0):0}
+- Today's Date: ${todayStr}
+
+TOP SELLING ITEMS:
+${topItems.map((it,i)=>`${i+1}. ${it.name} - ${it.qty} sold - ₱${fmt(it.rev.toFixed(0))}`).join('\n')}
+
+SLOWEST ITEMS:
+${slowItems.map(it=>`${it.name} - ${it.qty} sold`).join('\n')}
+
+DAILY REVENUE (recent days):
+${days.slice(-7).map(([d,r])=>`${d}: ₱${fmt(r.toFixed(0))}`).join('\n')}
+
+PAYMENT SPLIT:
+- Cash orders: ${orderList.filter(o=>o.payment==='Cash').length}
+- GCash orders: ${orderList.filter(o=>o.payment==='GCash').length}
+`;
+
+  chatHistory.push({role:'user', content: context + '\n\nQuestion: ' + msg});
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'You are a friendly Filipino business advisor for a food cart called Snowee PH. Give practical, actionable advice. Keep responses concise for mobile reading. Use ₱ for peso amounts.',
+        messages: chatHistory
+      })
+    });
+    const data = await res.json();
+    const reply = data.content[0].text;
+    chatHistory.push({role:'assistant', content: reply});
+    loadingEl.className = 'msg ai';
+    loadingEl.textContent = reply;
+  } catch(e){
+    loadingEl.className = 'msg ai';
+    loadingEl.textContent = '❌ Could not connect to AI. Check your internet connection.';
+  }
+
+  const msgs = document.getElementById('chat-msgs');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function addMessage(text, type){
+  const msgs = document.getElementById('chat-msgs');
+  const el = document.createElement('div');
+  el.className = 'msg ' + type;
+  el.textContent = text;
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  return el;
+}
+
+// ── TOAST ──
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);
+}
+
+// Auto-refresh every 5 minutes
+setInterval(()=>{
+  if(document.getElementById('app').classList.contains('visible')){
+    loadData();
+  }
+}, 5*60*1000);
+</script>
+</body>
+</html>
