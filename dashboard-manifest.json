@@ -1,0 +1,25 @@
+{
+  "name": "Snowee Dashboard",
+  "short_name": "Dashboard",
+  "description": "Snowee Analytics Dashboard — Owner View",
+  "start_url": "/snowee-pos/dashboard.html",
+  "scope": "/snowee-pos/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f2027",
+  "theme_color": "#63cafd",
+  "icons": [
+    {
+      "src": "dashboard-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "dashboard-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
