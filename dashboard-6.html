@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snowee Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--navy-mid:#234a87;--navy-light:#2d5aa8;
+  --yellow:#FFD700;--yellow-dark:#E6BE00;--yellow-light:#FFF9C4;
+  --white:#FFFFFF;--offwhite:#F4F7FF;--blue-light:#E8EEF8;
+  --red:#E63946;--green:#22C55E;--gray:#6B7A99;
+  --shadow:0 4px 18px rgba(27,58,107,.12);--radius:14px;--radius-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--offwhite);color:var(--navy);}
+#app{display:flex;flex-direction:column;min-height:100%;}
+.topnav{background:var(--navy);border-bottom:3px solid var(--yellow);padding:0 14px;height:55px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{font-family:'Black Han Sans',sans-serif;color:var(--yellow);font-size:18px;}
+.logo span{color:#fff;}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.refresh-btn{background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);border-radius:8px;color:var(--yellow);font-size:11px;font-weight:800;padding:5px 10px;cursor:pointer;}
+.last-update{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);}
+.tabbar{background:var(--navy);border-bottom:2px solid rgba(255,215,0,.2);display:flex;padding:0 8px 10px;gap:5px;flex-shrink:0;}
+.tabbtn{flex:1;background:rgba(255,255,255,.08);border:2px solid rgba(255,215,0,.2);border-radius:10px;color:rgba(255,255,255,.6);font-family:'Black Han Sans',sans-serif;font-size:10px;padding:7px 2px;cursor:pointer;text-align:center;}
+.tabbtn.active{background:var(--yellow);border-color:var(--yellow);color:var(--navy);}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;display:flex;flex-direction:column;gap:10px;}
+.tab-panel{display:none;flex-direction:column;gap:10px;}
+.tab-panel.active{display:flex;}
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:2px solid var(--blue-light);overflow:hidden;}
+.card-hd{background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--yellow);}
+.card-sub{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);}
+.card-body{padding:12px 14px;}
+.big-stat{text-align:center;padding:14px 12px;}
+.big-num{font-family:'Black Han Sans',sans-serif;font-size:40px;color:var(--navy);line-height:1;}
+.big-lbl{font-size:11px;font-weight:800;color:var(--gray);text-transform:uppercase;margin-top:4px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px;}
+.stat-item{text-align:center;background:var(--offwhite);border-radius:8px;padding:8px 4px;}
+.stat-num{font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--navy);}
+.stat-lbl{font-size:9px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+.pay-row{display:flex;padding:10px 14px;gap:8px;}
+.pay-item{flex:1;text-align:center;background:var(--offwhite);border-radius:8px;padding:8px 4px;}
+.pay-num{font-family:'Black Han Sans',sans-serif;font-size:15px;color:var(--navy);}
+.pay-lbl{font-size:9px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+.bar-chart{padding:10px 14px 6px;}
+.bars{display:flex;align-items:flex-end;gap:2px;height:60px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;}
+.bar-fill{border-radius:3px 3px 0 0;width:100%;min-height:2px;}
+.bar-lbl{font-size:7px;font-weight:800;color:var(--gray);}
+.bar-val{font-size:6px;font-weight:900;color:var(--navy-mid);}
+.rank-list{display:flex;flex-direction:column;}
+.rank-item{display:flex;align-items:center;padding:7px 14px;border-bottom:1px solid var(--blue-light);gap:8px;}
+.rank-item:last-child{border-bottom:none;}
+.rnum{font-family:'Black Han Sans',sans-serif;font-size:12px;width:22px;text-align:center;flex-shrink:0;}
+.rn1{color:var(--yellow);}
+.rn2{color:#C0C0C0;}
+.rn3{color:#CD7F32;}
+.rnn{color:var(--gray);}
+.rank-info{flex:1;min-width:0;}
+.rank-name{font-weight:800;font-size:11px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rank-bar-wrap{background:var(--blue-light);border-radius:3px;height:3px;margin-top:3px;}
+.rank-bar-fill{background:var(--yellow);border-radius:3px;height:3px;}
+.rank-right{text-align:right;flex-shrink:0;}
+.rank-qty{font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--navy);}
+.rank-rev{font-size:9px;font-weight:700;color:var(--gray);}
+.date-row{background:var(--white);border-radius:var(--radius-sm);padding:8px 12px;border:2px solid var(--blue-light);display:flex;align-items:center;gap:8px;}
+.date-in{background:var(--blue-light);border:2px solid rgba(27,58,107,.2);border-radius:8px;padding:5px 7px;font-weight:800;font-size:11px;color:var(--navy);outline:none;flex:1;}
+.today-btn{background:var(--yellow);border:none;border-radius:7px;font-weight:900;font-size:10px;padding:6px 10px;cursor:pointer;color:var(--navy);white-space:nowrap;}
+.week-bars{display:flex;align-items:flex-end;gap:4px;height:80px;}
+.week-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;}
+.week-fill{border-radius:4px 4px 0 0;width:100%;min-height:2px;}
+.week-lbl{font-size:8px;font-weight:800;color:var(--gray);}
+.week-val{font-size:7px;font-weight:900;color:var(--navy-mid);}
+.week-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:10px 14px;}
+.ws{background:var(--offwhite);border-radius:8px;padding:8px 6px;text-align:center;}
+.ws-num{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);}
+.ws-lbl{font-size:8px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+.prep-item{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid var(--blue-light);}
+.prep-item:last-child{border-bottom:none;}
+.prep-name{font-weight:800;font-size:12px;color:var(--navy);}
+.prep-cat{font-size:10px;color:var(--gray);font-weight:700;}
+.prep-qty{font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--navy);}
+.prep-unit{font-size:10px;font-weight:700;color:var(--gray);}
+.peak-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:10px 14px;}
+.peak-item{background:var(--offwhite);border-radius:8px;padding:8px 6px;text-align:center;}
+.peak-item.hot{background:var(--yellow-light);border:2px solid var(--yellow);}
+.peak-h{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);}
+.peak-rev{font-size:9px;font-weight:800;color:var(--gray);}
+.chat-box{background:var(--white);border-radius:var(--radius);border:2px solid var(--blue-light);display:flex;flex-direction:column;}
+.chat-msgs{overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:250px;max-height:420px;}
+.msg{max-width:88%;padding:10px 12px;border-radius:12px;font-size:12px;font-weight:700;line-height:1.5;white-space:pre-wrap;}
+.msg.user{background:var(--navy);color:white;align-self:flex-end;border-radius:12px 12px 2px 12px;}
+.msg.ai{background:var(--offwhite);color:var(--navy);align-self:flex-start;border-radius:12px 12px 12px 2px;border:1px solid var(--blue-light);}
+.msg.thinking{color:var(--gray);font-style:italic;}
+.chat-input-row{display:flex;gap:6px;padding:8px;border-top:2px solid var(--blue-light);}
+.chat-input{flex:1;background:var(--offwhite);border:2px solid var(--blue-light);border-radius:8px;padding:8px 10px;font-size:13px;font-weight:700;color:var(--navy);outline:none;}
+.chat-input:focus{border-color:var(--yellow);}
+.send-btn{background:var(--yellow);border:none;border-radius:8px;padding:8px 14px;font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--navy);cursor:pointer;}
+.quick-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 0 8px;}
+.qbtn{background:var(--white);border:2px solid var(--blue-light);border-radius:10px;padding:9px 8px;font-size:11px;font-weight:800;color:var(--navy);cursor:pointer;text-align:left;line-height:1.3;}
+.qbtn:active{background:var(--yellow-light);border-color:var(--yellow);}
+.empty{text-align:center;padding:40px 20px;color:var(--gray);font-weight:700;font-size:13px;}
+.loading{text-align:center;padding:40px;color:var(--gray);}
+.spinner{width:32px;height:32px;border:3px solid var(--blue-light);border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--yellow);font-weight:900;font-size:12px;padding:8px 16px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:500;white-space:nowrap;border:2px solid var(--yellow);}
+.toast.show{opacity:1;}
+.hl-row{display:flex;justify-content:space-between;align-items:center;background:var(--offwhite);padding:8px 10px;border-radius:8px;margin-bottom:6px;}
+.hl-lbl{font-size:10px;font-weight:800;text-transform:uppercase;}
+.hl-val{font-family:'Black Han Sans',sans-serif;font-size:16px;color:var(--navy);}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topnav">
+    <div class="logo">sn<span>ow</span>ee <span style="font-size:11px;color:rgba(255,255,255,.5);font-family:'Nunito',sans-serif;font-weight:800;">Analytics</span></div>
+    <div class="nav-right">
+      <div class="last-update" id="last-update">—</div>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+  </div>
+  <div class="tabbar">
+    <button class="tabbtn active" onclick="switchTab('today')">📊 Today</button>
+    <button class="tabbtn" onclick="switchTab('weekly')">📅 Week</button>
+    <button class="tabbtn" onclick="switchTab('items')">🏆 Items</button>
+    <button class="tabbtn" onclick="switchTab('prep')">📦 Prep</button>
+    <button class="tabbtn" onclick="switchTab('ai')">🤖 AI</button>
+  </div>
+  <div class="content">
+
+    <!-- TODAY TAB -->
+    <div class="tab-panel active" id="tab-today">
+      <div class="date-row">
+        <span style="font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--navy);">📅</span>
+        <input type="date" id="date-picker" class="date-in" onchange="selectedDate=this.value;renderToday();">
+        <button class="today-btn" onclick="goToday()">Today</button>
+      </div>
+      <div id="today-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+
+    <!-- WEEKLY TAB -->
+    <div class="tab-panel" id="tab-weekly">
+      <div id="weekly-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+
+    <!-- ITEMS TAB -->
+    <div class="tab-panel" id="tab-items">
+      <div id="items-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+
+    <!-- PREP TAB -->
+    <div class="tab-panel" id="tab-prep">
+      <div id="prep-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+
+    <!-- AI TAB -->
+    <div class="tab-panel" id="tab-ai">
+      <div class="quick-btns">
+        <button class="qbtn" onclick="ask('How are we doing this week? Give me a summary.')">📈 This week summary</button>
+        <button class="qbtn" onclick="ask('What is our best selling item and why?')">🏆 Best seller?</button>
+        <button class="qbtn" onclick="ask('Which items are slow and should we remove them?')">📉 Slow movers?</button>
+        <button class="qbtn" onclick="ask('When is our peak hour and what does it mean?')">🕐 Peak hours?</button>
+        <button class="qbtn" onclick="ask('How much did we make this month?')">💰 Monthly total?</button>
+        <button class="qbtn" onclick="ask('What should I prepare more of tomorrow based on recent trends?')">📦 Prep tomorrow?</button>
+        <button class="qbtn" onclick="ask('Are we growing or declining compared to last week?')">📊 Growth trend?</button>
+        <button class="qbtn" onclick="ask('Give me 3 actionable tips to increase revenue this week.')">💡 Tips to grow?</button>
+      </div>
+      <div class="chat-box">
+        <div class="chat-msgs" id="chat-msgs">
+          <div class="msg ai">👋 Kamusta! I'm your Snowee business advisor. I have access to your sales data. Ask me anything in English or Filipino!</div>
+        </div>
+        <div class="chat-input-row">
+          <input class="chat-input" id="chat-input" type="text" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="send-btn" onclick="sendChat()">Send</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA_URL = 'https://raw.githubusercontent.com/snoweephporta/snowee-pos/main/data.json';
+const fmt = n => Number(n).toLocaleString('en-PH');
+const fmtK = n => n >= 1000 ? '₱' + (n/1000).toFixed(1) + 'k' : '₱' + fmt(Math.round(n));
+const today = () => new Date().toISOString().split('T')[0];
+
+let allData = [];
+let selectedDate = today();
+
+// ── DATA ──
+async function loadData(){
+  toast('↻ Loading data...');
+  try{
+    const res = await fetch(DATA_URL + '?t=' + Date.now());
+    const json = await res.json();
+    if(json.status === 'ok'){
+      allData = json.rows.filter(r => r.date);
+      document.getElementById('last-update').textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      renderCurrentTab();
+      toast('✅ ' + allData.length + ' rows loaded!');
+    } else throw new Error(json.message);
+  } catch(e){ toast('❌ ' + e.message); console.error(e); }
+}
+
+let currentTab = 'today';
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.tabbtn')[['today','weekly','items','prep','ai'].indexOf(tab)].classList.add('active');
+  if(tab !== 'ai') renderCurrentTab();
+}
+
+function renderCurrentTab(){
+  if(currentTab==='today') renderToday();
+  else if(currentTab==='weekly') renderWeekly();
+  else if(currentTab==='items') renderItems();
+  else if(currentTab==='prep') renderPrep();
+}
+
+function goToday(){
+  selectedDate = today();
+  document.getElementById('date-picker').value = selectedDate;
+  renderToday();
+}
+
+// ── HELPERS ──
+function getOrders(rows){
+  const o = {};
+  rows.forEach(r=>{
+    if(!o[r.queue]) o[r.queue]={total:0,payment:r.payment,durationSecs:parseFloat(r.durationSecs)||0};
+    o[r.queue].total = parseFloat(r.order_total)||0;
+  });
+  return Object.values(o);
+}
+
+function getItems(rows, limit=20){
+  const m = {};
+  rows.forEach(r=>{
+    if(!m[r.item]) m[r.item]={name:r.item,cat:r.category||'',qty:0,rev:0};
+    m[r.item].qty += parseInt(r.qty)||0;
+    m[r.item].rev += parseFloat(r.subtotal)||0;
+  });
+  return Object.values(m).sort((a,b)=>b.qty-a.qty).slice(0,limit);
+}
+
+function rankList(items, limit=20){
+  const max = items.length ? items[0].qty : 1;
+  return `<div class="rank-list">${items.slice(0,limit).map((it,i)=>`
+    <div class="rank-item">
+      <div class="rnum ${i===0?'rn1':i===1?'rn2':i===2?'rn3':'rnn'}">${i+1}</div>
+      <div class="rank-info">
+        <div class="rank-name">${it.name}</div>
+        <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${(it.qty/max*100).toFixed(0)}%"></div></div>
+      </div>
+      <div class="rank-right">
+        <div class="rank-qty">${it.qty}x</div>
+        <div class="rank-rev">₱${fmt(it.rev.toFixed(0))}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+// ── TODAY ──
+function renderToday(){
+  document.getElementById('date-picker').value = selectedDate;
+  const rows = allData.filter(r => r.date === selectedDate);
+  const isToday = selectedDate === today();
+  const el = document.getElementById('today-body');
+
+  if(!rows.length){ el.innerHTML = `<div class="empty">📭 No orders for ${selectedDate}</div>`; return; }
+
+  const orders = getOrders(rows);
+  const rev = orders.reduce((s,o)=>s+o.total,0);
+  const cashO = orders.filter(o=>o.payment==='Cash');
+  const gcashO = orders.filter(o=>o.payment==='GCash');
+  const timed = orders.filter(o=>o.durationSecs>0);
+  const avgSecs = timed.length ? timed.reduce((s,o)=>s+o.durationSecs,0)/timed.length : 0;
+  const avgT = avgSecs>0 ? Math.floor(avgSecs/60)+'m '+Math.round(avgSecs%60)+'s' : '—';
+  const items = getItems(rows);
+
+  // Hour chart
+  const hmap={};
+  for(let h=6;h<=22;h++)hmap[h]=0;
+  rows.forEach(r=>{
+    if(r.time){const p=String(r.time).split(':');const h=parseInt(p[0]);if(hmap[h]!==undefined)hmap[h]+=parseFloat(r.subtotal)||0;}
+  });
+  const maxH = Math.max(...Object.values(hmap), 1);
+
+  // Peak hour
+  const peakH = Object.entries(hmap).sort((a,b)=>b[1]-a[1])[0];
+  const peakLabel = peakH[1]>0 ? `${peakH[0]%12||12}${Number(peakH[0])<12?'AM':'PM'}` : '—';
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-hd"><span class="card-title">💰 ${isToday?"Today's":"Day"} Revenue</span><span class="card-sub">${selectedDate}</span></div>
+      <div class="big-stat"><div class="big-num">₱${fmt(rev.toFixed(0))}</div><div class="big-lbl">Total Revenue</div></div>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="stat-num">${orders.length}</div><div class="stat-lbl">Orders</div></div>
+        <div class="stat-item"><div class="stat-num">₱${fmt((orders.length?rev/orders.length:0).toFixed(0))}</div><div class="stat-lbl">Avg Order</div></div>
+        <div class="stat-item"><div class="stat-num">${avgT}</div><div class="stat-lbl">Avg Time</div></div>
+        <div class="stat-item"><div class="stat-num">${peakLabel}</div><div class="stat-lbl">Peak Hour</div></div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-item"><div class="pay-num">₱${fmt(cashO.reduce((s,o)=>s+o.total,0).toFixed(0))}</div><div class="pay-lbl">💵 Cash · ${cashO.length}</div></div>
+        <div class="pay-item"><div class="pay-num" style="color:#007AFF">₱${fmt(gcashO.reduce((s,o)=>s+o.total,0).toFixed(0))}</div><div class="pay-lbl">📱 GCash · ${gcashO.length}</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><span class="card-title">⏰ Sales by Hour</span><span class="card-sub">Peak: ${peakLabel}</span></div>
+      <div class="bar-chart"><div class="bars">
+        ${Object.entries(hmap).map(([h,v])=>`
+          <div class="bar-col">
+            <div class="bar-val">${v>0?fmtK(v):''}</div>
+            <div class="bar-fill" style="height:${v?Math.max(4,(v/maxH)*50):2}px;background:${v===peakH[1]&&v>0?'var(--red)':v>0?'var(--yellow)':'var(--blue-light)'}"></div>
+            <div class="bar-lbl">${h%12||12}${Number(h)<12?'a':'p'}</div>
+          </div>`).join('')}
+      </div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items Today</span><span class="card-sub">Top 20</span></div>
+      ${rankList(items, 20)}
+    </div>`;
+}
+
+// ── WEEKLY ──
+function renderWeekly(){
+  const days=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().split('T')[0]);}
+
+  const dayTotals = days.map(d=>{
+    const rows = allData.filter(r=>r.date===d);
+    const orders = getOrders(rows);
+    return{date:d,revenue:orders.reduce((s,o)=>s+o.total,0),orders:orders.length,label:new Date(d+'T00:00:00').toLocaleDateString([],{weekday:'short'})};
+  });
+
+  const maxR = Math.max(...dayTotals.map(d=>d.revenue),1);
+  const wRev = dayTotals.reduce((s,d)=>s+d.revenue,0);
+  const wOrders = dayTotals.reduce((s,d)=>s+d.orders,0);
+  const activeDays = dayTotals.filter(d=>d.revenue>0);
+  const best = dayTotals.reduce((a,b)=>b.revenue>a.revenue?b:a,dayTotals[0]);
+  const worst = activeDays.length>1?activeDays.reduce((a,b)=>b.revenue<a.revenue?b:a,activeDays[0]):null;
+  const todayStr = today();
+
+  // Hour analysis this week
+  const hmap={};for(let h=6;h<=22;h++)hmap[h]=0;
+  allData.filter(r=>days.includes(r.date)).forEach(r=>{
+    if(r.time){const p=String(r.time).split(':');const h=parseInt(p[0]);if(hmap[h]!==undefined)hmap[h]+=parseFloat(r.subtotal)||0;}
+  });
+  const sortedHours = Object.entries(hmap).filter(([h,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const top3Hours = sortedHours.slice(0,3);
+  const slow3Hours = sortedHours.slice(-3).reverse();
+
+  const el = document.getElementById('weekly-body');
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📅 This Week</span><span class="card-sub">Last 7 days</span></div>
+      <div class="bar-chart"><div class="week-bars">
+        ${dayTotals.map(d=>`
+          <div class="week-col">
+            <div class="week-val">${d.revenue>0?fmtK(d.revenue):''}</div>
+            <div class="week-fill" style="height:${d.revenue?Math.max(4,(d.revenue/maxR)*70):2}px;background:${d.date===todayStr?'var(--yellow)':d.revenue>0?'var(--navy-light)':'var(--blue-light)'}"></div>
+            <div class="week-lbl">${d.label}</div>
+          </div>`).join('')}
+      </div></div>
+      <div class="week-stats">
+        <div class="ws"><div class="ws-num">₱${fmtK(wRev)}</div><div class="ws-lbl">Week Total</div></div>
+        <div class="ws"><div class="ws-num">₱${fmtK(activeDays.length?wRev/activeDays.length:0)}</div><div class="ws-lbl">Daily Avg</div></div>
+        <div class="ws"><div class="ws-num">${wOrders}</div><div class="ws-lbl">Orders</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📊 Day Highlights</span></div>
+      <div class="card-body">
+        <div class="hl-row"><div><div class="hl-lbl" style="color:var(--green)">🏆 Best Day</div><div style="font-weight:800;font-size:12px;">${new Date(best.date+'T00:00:00').toLocaleDateString([],{weekday:'long',month:'short',day:'numeric'})}</div></div><div class="hl-val">₱${fmt(best.revenue.toFixed(0))}</div></div>
+        ${worst?`<div class="hl-row"><div><div class="hl-lbl" style="color:var(--gray)">📉 Slowest Day</div><div style="font-weight:800;font-size:12px;">${new Date(worst.date+'T00:00:00').toLocaleDateString([],{weekday:'long',month:'short',day:'numeric'})}</div></div><div class="hl-val">₱${fmt(worst.revenue.toFixed(0))}</div></div>`:''}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><span class="card-title">⏰ Peak Hours This Week</span></div>
+      <div class="card-body">
+        <div style="font-size:10px;font-weight:800;color:var(--green);margin-bottom:6px;">🔥 BUSIEST</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          ${top3Hours.map(([h,v])=>`<div style="flex:1;background:var(--yellow-light);border:2px solid var(--yellow);border-radius:8px;padding:6px;text-align:center;"><div style="font-family:'Black Han Sans',sans-serif;font-size:14px;">${h%12||12}${Number(h)<12?'AM':'PM'}</div><div style="font-size:9px;font-weight:800;color:var(--gray);">${fmtK(v)}</div></div>`).join('')}
+        </div>
+        <div style="font-size:10px;font-weight:800;color:var(--gray);margin-bottom:6px;">😴 SLOWEST</div>
+        <div style="display:flex;gap:6px;">
+          ${slow3Hours.map(([h,v])=>`<div style="flex:1;background:var(--offwhite);border:2px solid var(--blue-light);border-radius:8px;padding:6px;text-align:center;"><div style="font-family:'Black Han Sans',sans-serif;font-size:14px;">${h%12||12}${Number(h)<12?'AM':'PM'}</div><div style="font-size:9px;font-weight:800;color:var(--gray);">${fmtK(v)}</div></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── ITEMS TAB ──
+function renderItems(){
+  const todayStr = today();
+  const weekDays=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);weekDays.push(d.toISOString().split('T')[0]);}
+  const monthDays=[];for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);monthDays.push(d.toISOString().split('T')[0]);}
+
+  const todayItems = getItems(allData.filter(r=>r.date===todayStr));
+  const weekItems = getItems(allData.filter(r=>weekDays.includes(r.date)));
+  const monthItems = getItems(allData.filter(r=>monthDays.includes(r.date)));
+  const allItems = getItems(allData);
+
+  const el = document.getElementById('items-body');
+  el.innerHTML = `
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items — Today</span><span class="card-sub">Top 20</span></div>
+      ${todayItems.length ? rankList(todayItems,20) : '<div class="empty">No data today</div>'}
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items — This Week</span><span class="card-sub">Top 20</span></div>
+      ${rankList(weekItems,20)}
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items — This Month</span><span class="card-sub">Top 20</span></div>
+      ${rankList(monthItems,20)}
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items — All Time</span><span class="card-sub">Top 20</span></div>
+      ${rankList(allItems,20)}
+    </div>`;
+}
+
+// ── PREP ──
+function renderPrep(){
+  const days=[];for(let i=1;i<=14;i++){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().split('T')[0]);}
+  const withData=new Set(allData.filter(r=>days.includes(r.date)).map(r=>r.date));
+  const n=Math.max(withData.size,1);
+  const imap={};
+  allData.filter(r=>days.includes(r.date)).forEach(r=>{
+    const k=r.item;
+    if(!imap[k])imap[k]={name:r.item,cat:r.category||'',total:0};
+    imap[k].total+=parseInt(r.qty)||0;
+  });
+  const items=Object.values(imap).map(it=>({...it,avg:Math.ceil(it.total/n)})).sort((a,b)=>b.avg-a.avg).filter(it=>it.avg>0);
+  const tom=new Date();tom.setDate(tom.getDate()+1);
+
+  document.getElementById('prep-body').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📦 Prep Guide</span><span class="card-sub">For ${tom.toLocaleDateString([],{weekday:'long'})}</span></div>
+      <div class="card-body" style="padding:6px 14px;"><div style="font-size:11px;font-weight:700;color:var(--gray);">Based on last ${n} days average — prepare at least:</div></div>
+      <div>${items.map(it=>`<div class="prep-item"><div><div class="prep-name">${it.name}</div><div class="prep-cat">${it.cat}</div></div><div style="text-align:right;"><div class="prep-qty">${it.avg}</div><div class="prep-unit">pcs/day</div></div></div>`).join('')}</div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">💡 Tip</span></div>
+      <div class="card-body"><div style="font-size:12px;font-weight:700;line-height:1.6;">On busy days prepare <strong>20-30% more</strong>. On slow days <strong>10-20% less</strong>. Weekend: always prep more!</div></div>
+    </div>`;
+}
+
+// ── AI ──
+async function ask(q){ document.getElementById('chat-input').value=q; await sendChat(); }
+
+async function sendChat(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim();if(!msg)return;input.value='';
+  addMsg(msg,'user');
+  const thinkEl=addMsg('⏳ Thinking...','ai thinking');
+
+  // Build data context
+  const todayStr=today();
+  const last30days=[];for(let i=0;i<30;i++){const d=new Date();d.setDate(d.getDate()-i);last30days.push(d.toISOString().split('T')[0]);}
+  const last30=allData.filter(r=>last30days.includes(r.date));
+  const orders={};last30.forEach(r=>{const k=r.date+'|'+r.queue;if(!orders[k])orders[k]={date:r.date,total:parseFloat(r.order_total)||0,payment:r.payment};});
+  const ol=Object.values(orders);
+  const rev=ol.reduce((s,o)=>s+o.total,0);
+  const top=getItems(last30,10);
+  const slow=getItems(last30,5).reverse();
+  const dm={};ol.forEach(o=>{if(!dm[o.date])dm[o.date]=0;dm[o.date]+=o.total;});
+  const allItems=getItems(allData,20);
+
+  const ctx=`You are a business advisor for Snowee PH, a Filipino food cart selling waffles, ice cream, milkshakes and coffee. Be friendly, practical, concise for mobile reading. Mix Filipino and English naturally. Use ₱ for amounts.
+
+SALES LAST 30 DAYS:
+Revenue: ₱${fmt(rev.toFixed(0))} | Orders: ${ol.length} | Avg: ₱${ol.length?(rev/ol.length).toFixed(0):0}
+Cash: ${ol.filter(o=>o.payment==='Cash').length} | GCash: ${ol.filter(o=>o.payment==='GCash').length}
+
+TOP 10 ITEMS (last 30 days):
+${top.map((it,i)=>`${i+1}. ${it.name} — ${it.qty} sold — ₱${fmt(it.rev.toFixed(0))}`).join('\n')}
+
+SLOW ITEMS: ${slow.map(it=>`${it.name}(${it.qty})`).join(', ')}
+
+DAILY REVENUE (last 7 days):
+${Object.entries(dm).sort((a,b)=>a[0].localeCompare(b[0])).slice(-7).map(([d,r])=>`${d}: ₱${r.toFixed(0)}`).join('\n')}
+
+ALL TIME TOP ITEMS: ${allItems.slice(0,5).map(it=>`${it.name}(${it.qty})`).join(', ')}
+TODAY: ${todayStr}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:ctx,messages:[{role:'user',content:msg}]})
+    });
+    const data=await res.json();
+    thinkEl.className='msg ai';
+    thinkEl.textContent=data.content[0].text;
+  }catch(e){
+    thinkEl.className='msg ai';
+    thinkEl.textContent='❌ AI unavailable. Check internet connection.';
+  }
+  document.getElementById('chat-msgs').scrollTop=9999;
+}
+
+function addMsg(text,type){
+  const msgs=document.getElementById('chat-msgs');
+  const el=document.createElement('div');el.className='msg '+type;el.textContent=text;
+  msgs.appendChild(el);msgs.scrollTop=9999;return el;
+}
+
+let toastT;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
+
+// Init
+document.getElementById('date-picker').value = selectedDate;
+loadData();
+setInterval(loadData, 5*60*1000);
+</script>
+</body>
+</html>
