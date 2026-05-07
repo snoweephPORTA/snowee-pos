@@ -3,7 +3,7 @@
   "short_name": "Kitchen",
   "description": "Snowee Kitchen Display \u2014 Live Orders",
   "start_url": "/snowee-pos/kitchen.html",
-  "scope": "/snowee-pos/",
+  "scope": "/snowee-pos/kitchen.html",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0a1628",
