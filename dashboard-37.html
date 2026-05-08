@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snowee Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--navy-mid:#234a87;--navy-light:#2d5aa8;
+  --yellow:#FFD700;--yellow-dark:#E6BE00;--yellow-light:#FFF9C4;
+  --white:#FFFFFF;--offwhite:#F4F7FF;--blue-light:#E8EEF8;
+  --red:#E63946;--green:#22C55E;--gray:#6B7A99;
+  --shadow:0 4px 18px rgba(27,58,107,.12);--radius:14px;--radius-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--offwhite);color:var(--navy);}
+#app{display:flex;flex-direction:column;min-height:100%;}
+.topnav{background:var(--navy);border-bottom:3px solid var(--yellow);padding:0 14px;height:55px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{font-family:'Black Han Sans',sans-serif;color:var(--yellow);font-size:18px;}
+.logo span{color:#fff;}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.refresh-btn{background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);border-radius:8px;color:var(--yellow);font-size:11px;font-weight:800;padding:5px 10px;cursor:pointer;}
+.last-update{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);}
+.tabbar{background:var(--navy);border-bottom:2px solid rgba(255,215,0,.2);display:flex;padding:0 8px 10px;gap:5px;flex-shrink:0;}
+.tabbtn{flex:1;background:rgba(255,255,255,.08);border:2px solid rgba(255,215,0,.2);border-radius:10px;color:rgba(255,255,255,.6);font-family:'Black Han Sans',sans-serif;font-size:10px;padding:7px 2px;cursor:pointer;text-align:center;}
+.tabbtn.active{background:var(--yellow);border-color:var(--yellow);color:var(--navy);}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;display:flex;flex-direction:column;gap:10px;}
+.tab-panel{display:none;flex-direction:column;gap:10px;}
+.tab-panel.active{display:flex;}
+
+/* Cards */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:2px solid var(--blue-light);overflow:hidden;}
+.card-hd{background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.card-hd.clickable{cursor:pointer;}
+.card-title{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--yellow);}
+.card-sub{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);}
+.card-body{padding:12px 14px;}
+.card-arrow{color:var(--yellow);font-size:12px;transition:transform .2s;}
+.card-arrow.open{transform:rotate(180deg);}
+
+/* Stats */
+.big-stat{text-align:center;padding:14px 12px;}
+.big-num{font-family:'Black Han Sans',sans-serif;font-size:40px;color:var(--navy);line-height:1;}
+.big-lbl{font-size:11px;font-weight:800;color:var(--gray);text-transform:uppercase;margin-top:4px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px;}
+.stat-item{text-align:center;background:var(--offwhite);border-radius:8px;padding:8px 4px;}
+.stat-num{font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--navy);}
+.stat-lbl{font-size:9px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+.pay-row{display:flex;padding:10px 14px;gap:8px;}
+.pay-item{flex:1;text-align:center;background:var(--offwhite);border-radius:8px;padding:8px 4px;}
+.pay-num{font-family:'Black Han Sans',sans-serif;font-size:15px;color:var(--navy);}
+.pay-lbl{font-size:9px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+
+/* Charts */
+.bar-chart{padding:10px 14px 6px;}
+.bars{display:flex;align-items:flex-end;gap:2px;height:60px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;}
+.bar-fill{border-radius:3px 3px 0 0;width:100%;min-height:2px;}
+.bar-lbl{font-size:7px;font-weight:800;color:var(--gray);}
+.bar-val{font-size:6px;font-weight:900;color:var(--navy-mid);}
+.week-bars{display:flex;align-items:flex-end;gap:4px;height:80px;}
+.week-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;}
+.week-fill{border-radius:4px 4px 0 0;width:100%;min-height:2px;}
+.week-lbl{font-size:8px;font-weight:800;color:var(--gray);}
+.week-val{font-size:7px;font-weight:900;color:var(--navy-mid);}
+.week-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:10px 14px;}
+.ws{background:var(--offwhite);border-radius:8px;padding:8px 6px;text-align:center;}
+.ws-num{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);}
+.ws-lbl{font-size:8px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+
+/* Rankings */
+.rank-list{display:flex;flex-direction:column;}
+.rank-item{display:flex;align-items:center;padding:7px 14px;border-bottom:1px solid var(--blue-light);gap:8px;}
+.rank-item:last-child{border-bottom:none;}
+.rnum{font-family:'Black Han Sans',sans-serif;font-size:12px;width:22px;text-align:center;flex-shrink:0;}
+.rn1{color:var(--yellow);}
+.rn2{color:#C0C0C0;}
+.rn3{color:#CD7F32;}
+.rnn{color:var(--gray);}
+.rank-info{flex:1;min-width:0;}
+.rank-name{font-weight:800;font-size:11px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rank-bar-wrap{background:var(--blue-light);border-radius:3px;height:3px;margin-top:3px;}
+.rank-bar-fill{background:var(--yellow);border-radius:3px;height:3px;}
+.rank-right{text-align:right;flex-shrink:0;}
+.rank-qty{font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--navy);}
+.rank-rev{font-size:9px;font-weight:700;color:var(--gray);}
+
+/* Date row */
+.date-row{background:var(--white);border-radius:var(--radius-sm);padding:8px 12px;border:2px solid var(--blue-light);display:flex;align-items:center;gap:8px;}
+.date-in{background:var(--blue-light);border:2px solid rgba(27,58,107,.2);border-radius:8px;padding:5px 7px;font-weight:800;font-size:11px;color:var(--navy);outline:none;flex:1;}
+.today-btn{background:var(--yellow);border:none;border-radius:7px;font-weight:900;font-size:10px;padding:6px 10px;cursor:pointer;color:var(--navy);white-space:nowrap;}
+
+/* Filter pills */
+.filter-row{display:flex;gap:6px;padding:0;}
+.fpill{flex:1;background:var(--white);border:2px solid var(--blue-light);border-radius:20px;font-weight:800;font-size:10px;color:var(--gray);padding:6px 4px;cursor:pointer;text-align:center;}
+.fpill.active{background:var(--navy);border-color:var(--navy);color:var(--yellow);}
+
+/* History */
+.history-item{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--blue-light);cursor:pointer;gap:10px;}
+.history-item:last-child{border-bottom:none;}
+.history-item:active{background:var(--yellow-light);}
+.hist-date{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);min-width:70px;}
+.hist-info{flex:1;}
+.hist-rev{font-family:'Black Han Sans',sans-serif;font-size:16px;color:var(--navy);}
+.hist-sub{font-size:10px;font-weight:700;color:var(--gray);}
+.hist-arrow{color:var(--gray);font-size:14px;}
+
+/* Day detail overlay */
+.overlay{position:fixed;inset:0;background:rgba(18,40,80,.7);z-index:200;display:none;flex-direction:column;}
+.overlay.open{display:flex;}
+.detail-panel{background:var(--offwhite);flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;}
+.detail-hd{background:var(--navy);border-bottom:3px solid var(--yellow);padding:0 14px;height:55px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.back-btn{background:rgba(255,215,0,.2);border:none;border-radius:8px;color:var(--yellow);font-weight:900;font-size:13px;padding:6px 12px;cursor:pointer;}
+.detail-title{font-family:'Black Han Sans',sans-serif;font-size:17px;color:var(--yellow);}
+.detail-body{padding:10px;display:flex;flex-direction:column;gap:10px;}
+
+/* Insights */
+.insight-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--blue-light);align-items:flex-start;}
+.insight-item:last-child{border-bottom:none;}
+.insight-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.insight-text{flex:1;}
+.insight-title{font-weight:900;font-size:12px;color:var(--navy);}
+.insight-desc{font-size:11px;font-weight:700;color:var(--gray);margin-top:2px;line-height:1.4;}
+.insight-badge{display:inline-block;border-radius:6px;font-size:9px;font-weight:900;padding:2px 7px;margin-top:4px;}
+.badge-green{background:#dcfce7;color:#16a34a;}
+.badge-yellow{background:var(--yellow-light);color:#92400e;}
+.badge-red{background:#fee2e2;color:#dc2626;}
+.badge-blue{background:#dbeafe;color:#1d4ed8;}
+
+/* Empty/Loading */
+.empty{text-align:center;padding:40px 20px;color:var(--gray);font-weight:700;font-size:13px;}
+.loading{text-align:center;padding:40px;color:var(--gray);}
+.spinner{width:32px;height:32px;border:3px solid var(--blue-light);border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Highlight rows */
+.hl-row{display:flex;justify-content:space-between;align-items:center;background:var(--offwhite);padding:8px 10px;border-radius:8px;margin-bottom:6px;}
+.hl-lbl{font-size:10px;font-weight:800;text-transform:uppercase;}
+.hl-val{font-family:'Black Han Sans',sans-serif;font-size:16px;color:var(--navy);}
+
+/* Order Log */
+.order-log-item{display:flex;flex-direction:column;padding:10px 14px;border-bottom:1px solid var(--blue-light);gap:3px;}
+.order-log-item:last-child{border-bottom:none;}
+.order-log-top{display:flex;align-items:center;gap:8px;}
+.order-log-num{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);min-width:40px;}
+.order-log-cust{font-size:11px;font-weight:800;color:var(--gray);flex:1;}
+.order-log-pay{font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;}
+.pay-cash{background:#dcfce7;color:#15803d;}
+.pay-gcash{background:#dbeafe;color:#1d4ed8;}
+.order-log-total{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);}
+.order-log-items{font-size:11px;font-weight:700;color:var(--gray);line-height:1.5;}
+.order-log-time{font-size:10px;font-weight:700;color:var(--gray);}
+/* Toast */
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--yellow);font-weight:900;font-size:12px;padding:8px 16px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:500;white-space:nowrap;border:2px solid var(--yellow);}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topnav">
+    <div class="logo">sn<span>ow</span>ee <span style="font-size:11px;color:rgba(255,255,255,.5);font-family:'Nunito',sans-serif;font-weight:800;">Analytics</span></div>
+    <div class="nav-right">
+      <div class="last-update" id="last-update">—</div>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+  </div>
+  <div class="tabbar">
+    <button class="tabbtn active" onclick="switchTab('today')">📊 Today</button>
+    <button class="tabbtn" onclick="switchTab('weekly')">📅 Week</button>
+    <button class="tabbtn" onclick="switchTab('items')">🏆 Items</button>
+    <button class="tabbtn" onclick="switchTab('history')">📋 History</button>
+    <button class="tabbtn" onclick="switchTab('insights')">💡 Insights</button>
+  </div>
+  <div class="content">
+
+    <!-- TODAY -->
+    <div class="tab-panel active" id="tab-today">
+      <div class="date-row">
+        <span style="font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--navy);">📅</span>
+        <input type="date" id="date-picker" class="date-in" onchange="selectedDate=this.value;renderToday();">
+        <button class="today-btn" onclick="goToday()">Today</button>
+      </div>
+      <div id="today-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+
+    <!-- WEEKLY -->
+    <div class="tab-panel" id="tab-weekly">
+      <div id="weekly-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+
+    <!-- ITEMS -->
+    <div class="tab-panel" id="tab-items">
+      <div class="filter-row" id="items-filter">
+        <button class="fpill active" onclick="setItemFilter('today')">Today</button>
+        <button class="fpill" onclick="setItemFilter('week')">Week</button>
+        <button class="fpill" onclick="setItemFilter('month')">Month</button>
+        <button class="fpill" onclick="setItemFilter('all')">All Time</button>
+      </div>
+      <div id="items-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="tab-panel" id="tab-history">
+      <div id="history-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+
+    <!-- INSIGHTS -->
+    <div class="tab-panel" id="tab-insights">
+      <div id="insights-body"><div class="loading"><div class="spinner"></div>Analyzing...</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Day Detail Overlay -->
+<div class="overlay" id="day-overlay">
+  <div class="detail-hd">
+    <button class="back-btn" onclick="closeDetail()">← Back</button>
+    <div class="detail-title" id="detail-title">—</div>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA_URL = 'https://raw.githubusercontent.com/snoweephporta/snowee-pos/main/data.json';
+const fmt = n => Number(n).toLocaleString('en-PH');
+const fmtK = n => n >= 1000 ? '₱' + (n/1000).toFixed(1) + 'k' : '₱' + fmt(Math.round(n));
+
+function fixDate(d){
+  if(!d)return'';
+  const s=String(d);
+  if(s.includes('T'))return s.split('T')[0];
+  return s;
+}
+function getHour(t){
+  if(!t)return -1;
+  const s=String(t).trim();
+  if(s.includes('T'))return parseInt(s.split('T')[1].split(':')[0]);
+  if(s.includes(':'))return parseInt(s.split(':')[0]);
+  return -1;
+}
+function fmtDateLabel(dateStr){
+  const d=new Date(dateStr+'T00:00:00');
+  return d.toLocaleDateString([],{month:'short',day:'numeric',weekday:'short'});
+}
+const today=()=>new Date().toISOString().split('T')[0];
+
+let allData=[], currentTab='today', selectedDate=today(), itemFilter='today';
+
+async function loadData(){
+  toast('↻ Loading data...');
+  try{
+    const res=await fetch(DATA_URL+'?t='+Date.now());
+    const json=await res.json();
+    if(json.status==='ok'){
+      allData=json.rows.filter(r=>r.date).map(r=>({...r,date:fixDate(r.date)}));
+      document.getElementById('last-update').textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      // If no data for today, use most recent date in data
+      const todayRows=allData.filter(r=>r.date===selectedDate);
+      if(!todayRows.length&&allData.length){const dates=[...new Set(allData.map(r=>r.date))].sort((a,b)=>b.localeCompare(a));if(dates[0])selectedDate=dates[0];}
+      document.getElementById('date-picker').value=selectedDate;
+      renderCurrentTab();
+      toast('✅ '+allData.length+' rows loaded!');
+    }else throw new Error(json.message||'Error');
+  }catch(e){toast('❌ '+e.message);console.error(e);}
+}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tabbtn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  document.querySelectorAll('.tabbtn')[['today','weekly','items','history','insights'].indexOf(tab)].classList.add('active');
+  renderCurrentTab();
+}
+
+function renderCurrentTab(){
+  if(currentTab==='today')renderToday();
+  else if(currentTab==='weekly')renderWeekly();
+  else if(currentTab==='items')renderItems();
+  else if(currentTab==='history')renderHistory();
+  else if(currentTab==='insights')renderInsights();
+}
+
+function goToday(){selectedDate=today();document.getElementById('date-picker').value=selectedDate;renderToday();}
+
+// ── HELPERS ──
+function getOrders(rows){
+  const o={};
+  rows.forEach(r=>{
+    const k=String(r.queue);
+    if(!o[k])o[k]={total:0,payment:r.payment,durationSecs:parseFloat(r.durationSecs)||0,done:false};
+    const t=parseFloat(r.order_total)||0;
+    if(t>0)o[k].total=t;
+    if(r.timeDone&&String(r.timeDone).trim()!=='')o[k].done=true;
+    if(parseFloat(r.durationSecs)>0)o[k].durationSecs=parseFloat(r.durationSecs);
+  });
+  return Object.values(o);
+}
+
+function getItems(rows,limit=20){
+  const m={};
+  rows.forEach(r=>{
+    if(!m[r.item])m[r.item]={name:r.item,cat:r.category||'',qty:0,rev:0};
+    m[r.item].qty+=parseInt(r.qty)||0;
+    m[r.item].rev+=parseFloat(r.subtotal)||0;
+  });
+  return Object.values(m).sort((a,b)=>b.qty-a.qty).slice(0,limit);
+}
+
+function rankList(items){
+  if(!items.length)return'<div class="empty">No data</div>';
+  const max=items[0].qty||1;
+  return`<div class="rank-list">${items.map((it,i)=>`
+    <div class="rank-item">
+      <div class="rnum ${i===0?'rn1':i===1?'rn2':i===2?'rn3':'rnn'}">${i+1}</div>
+      <div class="rank-info">
+        <div class="rank-name">${it.name}</div>
+        <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${(it.qty/max*100).toFixed(0)}%"></div></div>
+      </div>
+      <div class="rank-right">
+        <div class="rank-qty">${it.qty}x</div>
+        <div class="rank-rev">₱${fmt(it.rev.toFixed(0))}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function buildDayCard(rows, dateStr){
+  if(!rows.length)return`<div class="empty">📭 No orders for ${dateStr}</div>`;
+  const orders=getOrders(rows);
+  const rev=orders.reduce((s,o)=>s+o.total,0);
+  const cashO=orders.filter(o=>o.payment==='Cash');
+  const gcashO=orders.filter(o=>o.payment==='GCash');
+  const timed=orders.filter(o=>o.durationSecs>0);
+  const avgSecs=timed.length?timed.reduce((s,o)=>s+o.durationSecs,0)/timed.length:0;
+  const avgT=avgSecs>0?Math.floor(avgSecs/60)+'m '+Math.round(avgSecs%60)+'s':'—';
+  const items=getItems(rows,20);
+
+  const hmap={};for(let h=6;h<=22;h++)hmap[h]=0;
+  rows.forEach(r=>{const h=getHour(r.time);if(h>=6&&h<=22)hmap[h]+=(parseFloat(r.subtotal)||0);});
+  const maxH=Math.max(...Object.values(hmap),1);
+  const peakH=Object.entries(hmap).sort((a,b)=>b[1]-a[1])[0];
+  const peakLabel=peakH[1]>0?`${peakH[0]%12||12}${Number(peakH[0])<12?'AM':'PM'}`:'—';
+
+  return`
+    <div class="card">
+      <div class="big-stat"><div class="big-num">₱${fmt(rev.toFixed(0))}</div><div class="big-lbl">Total Revenue</div></div>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="stat-num">${orders.length}</div><div class="stat-lbl">Orders</div></div>
+        <div class="stat-item"><div class="stat-num">₱${fmt((orders.length?rev/orders.length:0).toFixed(0))}</div><div class="stat-lbl">Avg Order</div></div>
+        <div class="stat-item"><div class="stat-num">${avgT}</div><div class="stat-lbl">Avg Time</div></div>
+        <div class="stat-item"><div class="stat-num">${peakLabel}</div><div class="stat-lbl">Peak Hour</div></div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-item"><div class="pay-num">₱${fmt(cashO.reduce((s,o)=>s+o.total,0).toFixed(0))}</div><div class="pay-lbl">💵 Cash · ${cashO.length}</div></div>
+        <div class="pay-item"><div class="pay-num" style="color:#007AFF">₱${fmt(gcashO.reduce((s,o)=>s+o.total,0).toFixed(0))}</div><div class="pay-lbl">📱 GCash · ${gcashO.length}</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">⏰ Sales by Hour</span><span class="card-sub">Peak: ${peakLabel}</span></div>
+      <div class="bar-chart"><div class="bars">
+        ${Object.entries(hmap).map(([h,v])=>`
+          <div class="bar-col">
+            <div class="bar-val">${v>0?fmtK(v):''}</div>
+            <div class="bar-fill" style="height:${v?Math.max(4,(v/maxH)*50):2}px;background:${v===peakH[1]&&v>0?'var(--red)':v>0?'var(--yellow)':'var(--blue-light)'}"></div>
+            <div class="bar-lbl">${h%12||12}${Number(h)<12?'a':'p'}</div>
+          </div>`).join('')}
+      </div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items</span><span class="card-sub">Top 20</span></div>
+      ${rankList(items)}
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🧾 Order Log</span><span class="card-sub">${orders.length} orders</span></div>
+      ${orderLog(rows)}
+    </div>`;
+}
+
+// ── ORDER LOG ──
+function fmtLogTime(t){
+  if(!t)return'';
+  try{
+    const s=String(t).trim();
+    // Handle HH:MM or HH:MM:SS from Sheets (24hr format)
+    const m=s.match(/^(\d{1,2}):(\d{2})/);
+    if(m){
+      let h=parseInt(m[1]),min=parseInt(m[2]);
+      const ampm=h>=12?'PM':'AM';
+      h=h%12||12;
+      return h+':'+String(min).padStart(2,'0')+' '+ampm;
+    }
+    return new Date(t).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+  }catch(e){return'';}
+}
+function orderLog(rows){
+  if(!rows.length)return'<div class="empty">No orders</div>';
+  const map={};
+  rows.forEach(r=>{
+    const k=String(r.queue);
+    if(!map[k])map[k]={queue:k,customer:r.customer||'',payment:r.payment||'Cash',total:parseFloat(r.order_total)||0,time:r.time||r.timeCreated||'',items:[]};
+    const itm=(parseInt(r.qty)||1)+'x '+r.item;
+    if(!map[k].items.includes(itm))map[k].items.push(itm);
+  });
+  const list=Object.values(map).sort((a,b)=>{
+    try{
+      const pa=/^\d{1,2}:/.test(a.time);
+      const pb=/^\d{1,2}:/.test(b.time);
+      const ta=new Date(pa?new Date().toDateString()+' '+a.time:a.time).getTime();
+      const tb=new Date(pb?new Date().toDateString()+' '+b.time:b.time).getTime();
+      return ta-tb;
+    }catch(e){return 0;}
+  });
+  return'<div class="rank-list">'+list.map(o=>`<div class="order-log-item"><div class="order-log-top"><div class="order-log-num">${o.queue}</div><div class="order-log-cust">${o.customer||'—'}</div><span class="order-log-pay ${o.payment==='GCash'?'pay-gcash':'pay-cash'}">${o.payment==='GCash'?'📱 GCash':'💵 Cash'}</span><div class="order-log-total">₱${fmt(o.total.toFixed(0))}</div></div><div class="order-log-items">${o.items.join(' · ')}</div><div class="order-log-time">${fmtLogTime(o.time)}</div></div>`).join('')+'</div>';
+}
+
+// ── TODAY ──
+function renderToday(){
+  const rows=allData.filter(r=>r.date===selectedDate);
+  document.getElementById('today-body').innerHTML=buildDayCard(rows,selectedDate);
+}
+
+// ── WEEKLY ──
+function renderWeekly(){
+  const days=[];
+  for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toISOString().split('T')[0]);}
+  const dayTotals=days.map(d=>{
+    const rows=allData.filter(r=>r.date===d);
+    const orders=getOrders(rows);
+    return{date:d,revenue:orders.reduce((s,o)=>s+o.total,0),orders:orders.length,label:new Date(d+'T00:00:00').toLocaleDateString([],{weekday:'short'})};
+  });
+  const maxR=Math.max(...dayTotals.map(d=>d.revenue),1);
+  const wRev=dayTotals.reduce((s,d)=>s+d.revenue,0);
+  const wOrders=dayTotals.reduce((s,d)=>s+d.orders,0);
+  const active=dayTotals.filter(d=>d.revenue>0);
+  const best=dayTotals.reduce((a,b)=>b.revenue>a.revenue?b:a,dayTotals[0]);
+  const worst=active.length>1?active.reduce((a,b)=>b.revenue<a.revenue?b:a,active[0]):null;
+  const todayStr=today();
+
+  const hmap={};for(let h=6;h<=22;h++)hmap[h]=0;
+  allData.filter(r=>days.includes(r.date)).forEach(r=>{const h=getHour(r.time);if(h>=6&&h<=22)hmap[h]+=(parseFloat(r.subtotal)||0);});
+  const sortedH=Object.entries(hmap).filter(([h,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const top3=sortedH.slice(0,3);
+  const slow3=sortedH.slice(-3).reverse();
+
+  const weekItems=getItems(allData.filter(r=>days.includes(r.date)),20);
+
+  document.getElementById('weekly-body').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📅 This Week</span><span class="card-sub">Last 7 days</span></div>
+      <div class="bar-chart"><div class="week-bars">
+        ${dayTotals.map(d=>`
+          <div class="week-col">
+            <div class="week-val">${d.revenue>0?fmtK(d.revenue):''}</div>
+            <div class="week-fill" style="height:${d.revenue?Math.max(4,(d.revenue/maxR)*70):2}px;background:${d.date===todayStr?'var(--yellow)':d.revenue>0?'var(--navy-light)':'var(--blue-light)'}"></div>
+            <div class="week-lbl">${d.label}</div>
+          </div>`).join('')}
+      </div></div>
+      <div class="week-stats">
+        <div class="ws"><div class="ws-num">₱${fmtK(wRev)}</div><div class="ws-lbl">Week Total</div></div>
+        <div class="ws"><div class="ws-num">₱${fmtK(active.length?wRev/active.length:0)}</div><div class="ws-lbl">Daily Avg</div></div>
+        <div class="ws"><div class="ws-num">${wOrders}</div><div class="ws-lbl">Orders</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📊 Day Highlights</span></div>
+      <div class="card-body">
+        <div class="hl-row"><div><div class="hl-lbl" style="color:var(--green)">🏆 Best Day</div><div style="font-weight:800;font-size:12px;">${fmtDateLabel(best.date)}</div></div><div class="hl-val">₱${fmt(best.revenue.toFixed(0))}</div></div>
+        ${worst?`<div class="hl-row"><div><div class="hl-lbl" style="color:var(--gray)">📉 Slowest Day</div><div style="font-weight:800;font-size:12px;">${fmtDateLabel(worst.date)}</div></div><div class="hl-val">₱${fmt(worst.revenue.toFixed(0))}</div></div>`:''}
+      </div>
+    </div>
+    ${top3.length?`<div class="card">
+      <div class="card-hd"><span class="card-title">⏰ Peak Hours This Week</span></div>
+      <div class="card-body">
+        <div style="font-size:10px;font-weight:800;color:var(--green);margin-bottom:6px;">🔥 BUSIEST</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          ${top3.map(([h,v])=>`<div style="flex:1;background:var(--yellow-light);border:2px solid var(--yellow);border-radius:8px;padding:6px;text-align:center;"><div style="font-family:'Black Han Sans',sans-serif;font-size:14px;">${h%12||12}${Number(h)<12?'AM':'PM'}</div><div style="font-size:9px;font-weight:800;color:var(--gray);">${fmtK(v)}</div></div>`).join('')}
+        </div>
+        ${slow3.length?`<div style="font-size:10px;font-weight:800;color:var(--gray);margin-bottom:6px;">😴 SLOWEST</div>
+        <div style="display:flex;gap:6px;">
+          ${slow3.map(([h,v])=>`<div style="flex:1;background:var(--offwhite);border:2px solid var(--blue-light);border-radius:8px;padding:6px;text-align:center;"><div style="font-family:'Black Han Sans',sans-serif;font-size:14px;">${h%12||12}${Number(h)<12?'AM':'PM'}</div><div style="font-size:9px;font-weight:800;color:var(--gray);">${fmtK(v)}</div></div>`).join('')}
+        </div>`:''}
+      </div>
+    </div>`:''}
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items This Week</span><span class="card-sub">Top 20</span></div>
+      ${rankList(weekItems)}
+    </div>`;
+}
+
+// ── ITEMS ──
+function setItemFilter(f){
+  itemFilter=f;
+  document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.fpill')[['today','week','month','all'].indexOf(f)].classList.add('active');
+  renderItems();
+}
+
+function renderItems(){
+  const todayStr=today();
+  const weekDays=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);weekDays.push(d.toISOString().split('T')[0]);}
+  const monthDays=[];for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);monthDays.push(d.toISOString().split('T')[0]);}
+
+  let rows=[], label='';
+  if(itemFilter==='today'){rows=allData.filter(r=>r.date===todayStr);label='Today';}
+  else if(itemFilter==='week'){rows=allData.filter(r=>weekDays.includes(r.date));label='This Week';}
+  else if(itemFilter==='month'){rows=allData.filter(r=>monthDays.includes(r.date));label='This Month';}
+  else{rows=allData;label='All Time';}
+
+  const items=getItems(rows,20);
+  document.getElementById('items-body').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items — ${label}</span><span class="card-sub">Top 20</span></div>
+      ${rankList(items)}
+    </div>`;
+}
+
+// ── HISTORY ──
+function renderHistory(){
+  // Get all unique dates with data, sorted newest first
+  const dateMap={};
+  allData.forEach(r=>{
+    if(!dateMap[r.date])dateMap[r.date]=[];
+    dateMap[r.date].push(r);
+  });
+  const sorted=Object.entries(dateMap).sort((a,b)=>b[0].localeCompare(a[0]));
+
+  if(!sorted.length){document.getElementById('history-body').innerHTML='<div class="empty">No history yet</div>';return;}
+
+  const rows=sorted.map(([date,rows])=>{
+    const orders=getOrders(rows);
+    const rev=orders.reduce((s,o)=>s+o.total,0);
+    const cashCount=orders.filter(o=>o.payment==='Cash').length;
+    const gcashCount=orders.filter(o=>o.payment==='GCash').length;
+    return{date,rev,orders:orders.length,cashCount,gcashCount};
+  });
+
+  document.getElementById('history-body').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📋 Sales History</span><span class="card-sub">${rows.length} days</span></div>
+      <div class="rank-list">
+        ${rows.map(d=>`
+          <div class="history-item" onclick="openDetail('${d.date}')">
+            <div>
+              <div class="hist-date">${fmtDateLabel(d.date)}</div>
+              <div class="hist-sub">${d.orders} orders · 💵${d.cashCount} 📱${d.gcashCount}</div>
+            </div>
+            <div style="text-align:right;flex:1;">
+              <div class="hist-rev">₱${fmt(d.rev.toFixed(0))}</div>
+            </div>
+            <div class="hist-arrow">›</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── DAY DETAIL ──
+function openDetail(dateStr){
+  const rows=allData.filter(r=>r.date===dateStr);
+  document.getElementById('detail-title').textContent=fmtDateLabel(dateStr);
+  document.getElementById('detail-body').innerHTML=buildDayCard(rows,dateStr);
+  document.getElementById('day-overlay').classList.add('open');
+}
+function closeDetail(){
+  document.getElementById('day-overlay').classList.remove('open');
+}
+
+// ── INSIGHTS ──
+function renderInsights(){
+  const insights=[];
+  const todayStr=today();
+  const weekDays=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);weekDays.push(d.toISOString().split('T')[0]);}
+  const prevWeekDays=[];for(let i=13;i>=7;i--){const d=new Date();d.setDate(d.getDate()-i);prevWeekDays.push(d.toISOString().split('T')[0]);}
+  const monthDays=[];for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);monthDays.push(d.toISOString().split('T')[0]);}
+
+  const todayRows=allData.filter(r=>r.date===todayStr);
+  const weekRows=allData.filter(r=>weekDays.includes(r.date));
+  const prevWeekRows=allData.filter(r=>prevWeekDays.includes(r.date));
+  const monthRows=allData.filter(r=>monthDays.includes(r.date));
+
+  const todayOrders=getOrders(todayRows);
+  const weekOrders=getOrders(weekRows);
+  const prevWeekOrders=getOrders(prevWeekRows);
+  const monthOrders=getOrders(monthRows);
+
+  const todayRev=todayOrders.reduce((s,o)=>s+o.total,0);
+  const weekRev=weekOrders.reduce((s,o)=>s+o.total,0);
+  const prevWeekRev=prevWeekOrders.reduce((s,o)=>s+o.total,0);
+  const monthRev=monthOrders.reduce((s,o)=>s+o.total,0);
+
+  // Get active days this week for daily avg
+  const dateMap={};
+  weekRows.forEach(r=>{if(!dateMap[r.date])dateMap[r.date]=0;dateMap[r.date]++;});
+  const activeDays=Object.keys(dateMap).length||1;
+  const weekDailyAvg=weekRev/activeDays;
+
+  // 1. Today vs daily avg
+  if(todayOrders.length>0){
+    const diff=todayRev-weekDailyAvg;
+    const pct=weekDailyAvg>0?Math.abs(diff/weekDailyAvg*100).toFixed(0):0;
+    if(diff>0){
+      insights.push({icon:'📈',title:`Today is ${pct}% above your daily average`,desc:`Today's revenue ₱${fmt(todayRev.toFixed(0))} vs avg ₱${fmt(weekDailyAvg.toFixed(0))}. Great day!`,badge:'badge-green',badgeText:'Above Average'});
+    } else if(diff<0){
+      insights.push({icon:'📉',title:`Today is ${pct}% below your daily average`,desc:`Today's revenue ₱${fmt(todayRev.toFixed(0))} vs avg ₱${fmt(weekDailyAvg.toFixed(0))}. Keep pushing!`,badge:'badge-yellow',badgeText:'Below Average'});
+    }
+  }
+
+  // 2. Week vs prev week
+  if(weekRev>0&&prevWeekRev>0){
+    const diff=weekRev-prevWeekRev;
+    const pct=Math.abs(diff/prevWeekRev*100).toFixed(0);
+    if(diff>0){
+      insights.push({icon:'🚀',title:`This week is up ${pct}% vs last week`,desc:`This week: ₱${fmt(weekRev.toFixed(0))} vs last week: ₱${fmt(prevWeekRev.toFixed(0))}. You're growing!`,badge:'badge-green',badgeText:'Growing'});
+    } else {
+      insights.push({icon:'⚠️',title:`This week is down ${pct}% vs last week`,desc:`This week: ₱${fmt(weekRev.toFixed(0))} vs last week: ₱${fmt(prevWeekRev.toFixed(0))}. Consider a promo.`,badge:'badge-red',badgeText:'Declining'});
+    }
+  }
+
+  // 3. Best seller
+  const weekItems=getItems(weekRows,5);
+  if(weekItems.length>0){
+    const top=weekItems[0];
+    insights.push({icon:'🏆',title:`${top.name} is your #1 seller this week`,desc:`Sold ${top.qty} times this week for ₱${fmt(top.rev.toFixed(0))}. Make sure you always have this stocked!`,badge:'badge-green',badgeText:'Best Seller'});
+  }
+
+  // 4. Slow mover
+  const allItems=getItems(monthRows,100);
+  const slowItems=allItems.filter(it=>it.qty<=2);
+  if(slowItems.length>0){
+    insights.push({icon:'🐌',title:`${slowItems.length} item${slowItems.length>1?'s are':' is'} barely selling this month`,desc:`${slowItems.slice(0,3).map(it=>it.name).join(', ')} sold only 1-2 times. Consider a promo or removing them.`,badge:'badge-yellow',badgeText:'Slow Movers'});
+  }
+
+  // 5. Payment split
+  const gcashCount=monthOrders.filter(o=>o.payment==='GCash').length;
+  const cashCount=monthOrders.filter(o=>o.payment==='Cash').length;
+  const total=gcashCount+cashCount;
+  if(total>0){
+    const gcashPct=Math.round(gcashCount/total*100);
+    if(gcashPct>60){
+      insights.push({icon:'📱',title:`${gcashPct}% of your orders use GCash`,desc:`GCash is your dominant payment method this month. Make sure your QR code is always visible and accessible.`,badge:'badge-blue',badgeText:'GCash Dominant'});
+    } else if(gcashPct<30){
+      insights.push({icon:'💵',title:`${100-gcashPct}% of orders use Cash`,desc:`Most customers pay cash. Consider promoting GCash for faster transactions during rush hours.`,badge:'badge-blue',badgeText:'Cash Dominant'});
+    } else {
+      insights.push({icon:'⚖️',title:`Balanced payment split — ${gcashPct}% GCash, ${100-gcashPct}% Cash`,desc:`Good mix of payment methods. Keep both options available.`,badge:'badge-blue',badgeText:'Balanced'});
+    }
+  }
+
+  // 6. Peak hour
+  const hmap={};for(let h=6;h<=22;h++)hmap[h]=0;
+  weekRows.forEach(r=>{const h=getHour(r.time);if(h>=6&&h<=22)hmap[h]+=(parseFloat(r.subtotal)||0);});
+  const peakH=Object.entries(hmap).sort((a,b)=>b[1]-a[1])[0];
+  if(peakH&&peakH[1]>0){
+    const h=Number(peakH[0]);
+    insights.push({icon:'🕐',title:`Your peak hour is ${h%12||12}${h<12?'AM':'PM'}–${(h+1)%12||12}${(h+1)<12?'AM':'PM'}`,desc:`This is your busiest hour this week with ₱${fmt(peakH[1].toFixed(0))} in sales. Make sure you're fully staffed and stocked during this time!`,badge:'badge-yellow',badgeText:'Peak Hour'});
+  }
+
+  // 7. Avg order value
+  if(monthOrders.length>0){
+    const avg=monthRev/monthOrders.length;
+    if(avg<100){
+      insights.push({icon:'💡',title:`Your avg order is ₱${avg.toFixed(0)} — room to grow`,desc:`Try upselling combos or drinks with every order. Adding one drink per order could boost revenue significantly!`,badge:'badge-yellow',badgeText:'Tip'});
+    } else {
+      insights.push({icon:'💪',title:`Strong avg order value of ₱${avg.toFixed(0)}`,desc:`Customers are spending well. Your combos and upsells are working!`,badge:'badge-green',badgeText:'Healthy'});
+    }
+  }
+
+  if(!insights.length){document.getElementById('insights-body').innerHTML='<div class="empty">📊 Not enough data yet for insights. Keep taking orders!</div>';return;}
+
+  document.getElementById('insights-body').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><span class="card-title">💡 Business Insights</span><span class="card-sub">Auto-generated</span></div>
+      <div>${insights.map(ins=>`
+        <div class="insight-item">
+          <div class="insight-icon">${ins.icon}</div>
+          <div class="insight-text">
+            <div class="insight-title">${ins.title}</div>
+            <div class="insight-desc">${ins.desc}</div>
+            <span class="insight-badge ${ins.badge}">${ins.badgeText}</span>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+let toastT;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
+
+document.getElementById('date-picker').value=selectedDate;
+loadData();
+setInterval(loadData,5*60*1000);
+</script>
+</body>
+</html>
