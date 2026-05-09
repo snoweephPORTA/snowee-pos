@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snowee Cashier</title>
+<link rel="manifest" href="cashier-manifest.json">
+<meta name="theme-color" content="#FFD700">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cashier">
+<link rel="apple-touch-icon" href="cashier-icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1B3A6B;--navy2:#234a87;--yellow:#FFD700;--yellow2:#FFF9C4;--yellow-dark:#E6BE00;--green:#22C55E;--green2:#dcfce7;--red:#EF4444;--red2:#fee2e2;--blue:#3B82F6;--blue2:#dbeafe;--white:#fff;--off:#F4F7FF;--light:#E8EEF8;--gray:#6B7A99;--shadow:0 4px 20px rgba(27,58,107,.12);--r:14px;--rs:9px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{min-height:100%;font-family:'Nunito',sans-serif;background:var(--off);color:var(--navy);}
+.topnav{background:var(--navy);border-bottom:3px solid var(--yellow);padding:0 14px;height:55px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Black Han Sans',sans-serif;color:var(--yellow);font-size:18px;}
+.logo span{color:#fff;}
+.refresh-btn{background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);border-radius:8px;color:var(--yellow);font-size:11px;font-weight:800;padding:5px 10px;cursor:pointer;}
+.content{padding:10px;display:flex;flex-direction:column;gap:10px;max-width:600px;margin:0 auto;padding-bottom:30px;}
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);border:2px solid var(--light);overflow:hidden;}
+.card-hd{background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--yellow);}
+.card-sub{font-size:10px;font-weight:800;color:rgba(255,255,255,.5);}
+.card-body{padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.field-label{font-size:10px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;}
+.field-input{background:var(--off);border:2px solid var(--light);border-radius:var(--rs);padding:8px 10px;font-weight:800;font-size:13px;color:var(--navy);outline:none;width:100%;}
+.field-input:focus{border-color:var(--yellow);}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.shift-toggle{display:flex;gap:6px;}
+.shift-btn{flex:1;background:var(--off);border:2px solid var(--light);border-radius:var(--rs);padding:9px;font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--gray);cursor:pointer;text-align:center;}
+.shift-btn.active{background:var(--yellow);border-color:var(--yellow-dark);color:var(--navy);}
+.denom-table{width:100%;border-collapse:collapse;}
+.denom-table th{background:var(--navy);color:var(--yellow);font-family:'Black Han Sans',sans-serif;font-size:11px;padding:6px 8px;text-align:center;}
+.denom-table td{padding:5px 8px;border-bottom:1px solid var(--light);text-align:center;font-size:12px;font-weight:800;}
+.denom-table tr:last-child td{border-bottom:none;}
+.denom-table tr:nth-child(even) td{background:var(--off);}
+.denom-num{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--navy);}
+.denom-input{background:var(--off);border:2px solid var(--light);border-radius:7px;padding:5px 4px;font-weight:900;font-size:14px;color:var(--navy);outline:none;width:60px;text-align:center;}
+.denom-input:focus{border-color:var(--yellow);}
+.denom-total-cell{font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--navy2);}
+.denom-footer td{background:var(--navy);color:var(--yellow);font-family:'Black Han Sans',sans-serif;font-size:13px;padding:8px;}
+.comp-table{width:100%;border-collapse:collapse;}
+.comp-table td{padding:6px 8px;border-bottom:1px solid var(--light);font-size:12px;}
+.comp-table tr:last-child td{border-bottom:none;}
+.comp-lbl{font-weight:800;color:var(--gray);}
+.comp-val{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);text-align:right;}
+.comp-val.green{color:var(--green);}
+.comp-val.red{color:var(--red);}
+.comp-val.blue{color:var(--blue);}
+.comp-sep{background:var(--light);height:2px;padding:0!important;}
+.result-box{border-radius:12px;padding:14px;text-align:center;margin-top:6px;}
+.result-box.ok{background:var(--green2);border:2px solid var(--green);}
+.result-box.short{background:var(--red2);border:2px solid var(--red);}
+.result-box.over{background:var(--yellow2);border:2px solid var(--yellow-dark);}
+.result-label{font-family:'Black Han Sans',sans-serif;font-size:16px;}
+.result-amt{font-family:'Black Han Sans',sans-serif;font-size:34px;margin:4px 0;}
+.result-sub{font-size:11px;font-weight:700;color:var(--gray);}
+.total-bar{background:var(--navy);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+.total-lbl{font-family:'Black Han Sans',sans-serif;font-size:13px;color:rgba(255,255,255,.7);}
+.total-val{font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--yellow);}
+.exp-row{display:flex;gap:6px;align-items:center;}
+.exp-name{flex:1;background:var(--off);border:2px solid var(--light);border-radius:8px;padding:6px 8px;font-weight:700;font-size:12px;color:var(--navy);outline:none;}
+.exp-name:focus{border-color:var(--yellow);}
+.exp-amt{width:90px;background:var(--off);border:2px solid var(--light);border-radius:8px;padding:6px 8px;font-weight:800;font-size:12px;color:var(--navy);outline:none;text-align:right;}
+.exp-amt:focus{border-color:var(--yellow);}
+.exp-del{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;padding:0 4px;}
+.add-btn{background:var(--off);border:2px dashed var(--light);border-radius:8px;padding:7px;font-weight:800;font-size:12px;color:var(--gray);cursor:pointer;width:100%;text-align:center;}
+.gcash-item{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;border-bottom:1px solid var(--light);font-size:11px;}
+.gcash-item:last-child{border-bottom:none;}
+.gcash-queue{font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--navy);min-width:32px;}
+.gcash-ref{color:var(--gray);font-weight:700;flex:1;padding:0 8px;font-size:10px;}
+.gcash-amt{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--blue);}
+.end-shift-btn{background:var(--red);color:#fff;border:2px solid #c0392b;border-radius:var(--rs);font-family:'Black Han Sans',sans-serif;font-size:14px;padding:12px;cursor:pointer;width:100%;text-align:center;}
+.end-shift-btn.ended{background:var(--green);color:#fff;border-color:#15803d;}
+.shift-time-lbl{font-size:11px;font-weight:800;color:var(--gray);text-align:center;}
+.loading{text-align:center;padding:20px;color:var(--gray);font-weight:700;font-size:13px;}
+.spinner{width:28px;height:28px;border:3px solid var(--light);border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 8px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.shift-divider{background:var(--navy2);color:var(--yellow);font-family:'Black Han Sans',sans-serif;font-size:14px;padding:10px 14px;border-radius:10px;text-align:center;}
+.sec-lbl{font-size:10px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;padding:6px 0 2px;border-bottom:2px solid var(--light);margin-bottom:4px;}
+.hidden{display:none!important;}
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--yellow);font-weight:900;font-size:12px;padding:8px 16px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:500;white-space:nowrap;border:2px solid var(--yellow);}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="topnav">
+  <div class="logo">sn<span>ow</span>ee <span style="font-size:11px;color:rgba(255,255,255,.5);font-family:'Nunito',sans-serif;font-weight:800;">Cashier</span></div>
+  <button class="refresh-btn" onclick="loadSales()">&#8635; Refresh</button>
+</div>
+<div class="content">
+
+  <!-- SETUP -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">&#128203; Setup</span></div>
+    <div class="card-body">
+      <div class="row2">
+        <div class="fg"><div class="field-label">Date</div><input type="date" class="field-input" id="sel-date" onchange="loadSales()"></div>
+        <div class="fg"><div class="field-label">Cashier</div><input type="text" class="field-input" id="cashier-name" placeholder="Name"></div>
+      </div>
+      <div class="fg">
+        <div class="field-label">Shifts</div>
+        <div class="shift-toggle">
+          <button class="shift-btn active" id="btn-1s" onclick="setShifts(1)">1 Shift</button>
+          <button class="shift-btn" id="btn-2s" onclick="setShifts(2)">AM + PM</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- YESTERDAY ENDING -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">&#128176; Yesterday Ending (= Today Beginning)</span></div>
+    <div class="card-body">
+      <table class="denom-table">
+        <thead><tr><th>Bill/Coin</th><th>Pieces</th><th>Amount</th></tr></thead>
+        <tbody id="yest-body"></tbody>
+        <tfoot><tr class="denom-footer"><td colspan="2" style="text-align:right;">YESTERDAY ENDING =</td><td id="yest-total">&#8369;0</td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- AM SHIFT -->
+  <div id="am-wrap">
+    <div class="shift-divider" id="am-div-title">&#9728;&#65039; Shift</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="shift-time-lbl" id="am-time-lbl">Tap below to lock shift and snapshot sales at this moment</div>
+        <button class="end-shift-btn" id="am-end-btn" onclick="endShift('am')">&#9201; End Shift Now</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">&#128202; Sales</span><span class="card-sub" id="am-sales-sub">—</span></div>
+      <div class="card-body">
+        <div id="am-loading" class="loading"><div class="spinner"></div>Loading from Sheets...</div>
+        <div id="am-sales-body" class="hidden">
+          <table class="comp-table">
+            <tr><td class="comp-lbl">&#128181; Cash Sales</td><td class="comp-val green" id="am-cash-disp">&#8369;0</td></tr>
+            <tr><td class="comp-lbl">&#128241; GCash Sales</td><td class="comp-val blue" id="am-gcash-disp">&#8369;0</td></tr>
+            <tr><td class="comp-sep" colspan="2"></td></tr>
+            <tr><td class="comp-lbl">Total Sales</td><td class="comp-val" id="am-total-disp">&#8369;0</td></tr>
+          </table>
+          <div id="am-gcash-wrap" class="hidden" style="margin-top:8px;">
+            <div class="sec-lbl">&#128241; GCash Transactions</div>
+            <div id="am-gcash-items"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">&#128184; Expenses</span><span class="card-sub" id="am-exp-sub">&#8369;0</span></div>
+      <div class="card-body" id="am-exp-body"><button class="add-btn" onclick="addExp('am')">+ Add Expense</button></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">&#127937; Ending Cash</span><span class="card-sub" id="am-end-sub">&#8369;0</span></div>
+      <div class="card-body">
+        <table class="denom-table">
+          <thead><tr><th>Bill/Coin</th><th>Pieces</th><th>Amount</th></tr></thead>
+          <tbody id="am-end-body"></tbody>
+          <tfoot><tr class="denom-footer"><td colspan="2" style="text-align:right;">ENDING CASH =</td><td id="am-end-total">&#8369;0</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">&#9989; Computation</span></div>
+      <div class="card-body">
+        <table class="comp-table">
+          <tr><td class="comp-lbl">Today Beginning</td><td class="comp-val" id="am-c-beg">&#8369;0</td></tr>
+          <tr><td class="comp-lbl">+ Cash Sales</td><td class="comp-val green" id="am-c-cash">&#8369;0</td></tr>
+          <tr><td class="comp-lbl">&#8722; Expenses</td><td class="comp-val red" id="am-c-exp">&#8369;0</td></tr>
+          <tr><td class="comp-sep" colspan="2"></td></tr>
+          <tr><td class="comp-lbl">= Computed Cash</td><td class="comp-val" id="am-c-computed">&#8369;0</td></tr>
+          <tr><td class="comp-lbl">Actual Ending Cash</td><td class="comp-val" id="am-c-actual">&#8369;0</td></tr>
+          <tr><td class="comp-sep" colspan="2"></td></tr>
+          <tr><td class="comp-lbl">&#128241; GCash (separate)</td><td class="comp-val blue" id="am-c-gcash">&#8369;0</td></tr>
+        </table>
+        <div class="result-box ok" id="am-result">
+          <div class="result-label" id="am-r-lbl">&#9989; Balanced</div>
+          <div class="result-amt" id="am-r-amt">&#8369;0</div>
+          <div class="result-sub" id="am-r-sub">Cash is balanced</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PM SHIFT -->
+  <div id="pm-wrap" class="hidden">
+    <div class="shift-divider">&#127769; PM Shift</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="shift-time-lbl" id="pm-time-lbl">Tap to end PM shift and snapshot sales</div>
+        <button class="end-shift-btn" id="pm-end-btn" onclick="endShift('pm')">&#9201; End PM Shift Now</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">&#128202; PM Sales</span><span class="card-sub" id="pm-sales-sub">—</span></div>
+      <div class="card-body">
+        <table class="comp-table">
+          <tr><td class="comp-lbl">&#128181; Cash Sales</td><td class="comp-val green" id="pm-cash-disp">&#8369;0</td></tr>
+          <tr><td class="comp-lbl">&#128241; GCash Sales</td><td class="comp-val blue" id="pm-gcash-disp">&#8369;0</td></tr>
+          <tr><td class="comp-sep" colspan="2"></td></tr>
+          <tr><td class="comp-lbl">Total PM Sales</td><td class="comp-val" id="pm-total-disp">&#8369;0</td></tr>
+        </table>
+        <div id="pm-gcash-wrap" class="hidden" style="margin-top:8px;">
+          <div class="sec-lbl">&#128241; GCash Transactions</div>
+          <div id="pm-gcash-items"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">&#128184; PM Expenses</span><span class="card-sub" id="pm-exp-sub">&#8369;0</span></div>
+      <div class="card-body" id="pm-exp-body"><button class="add-btn" onclick="addExp('pm')">+ Add Expense</button></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">&#127937; PM Ending Cash</span><span class="card-sub" id="pm-end-sub">&#8369;0</span></div>
+      <div class="card-body">
+        <table class="denom-table">
+          <thead><tr><th>Bill/Coin</th><th>Pieces</th><th>Amount</th></tr></thead>
+          <tbody id="pm-end-body"></tbody>
+          <tfoot><tr class="denom-footer"><td colspan="2" style="text-align:right;">ENDING CASH =</td><td id="pm-end-total">&#8369;0</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">&#9989; PM Computation</span></div>
+      <div class="card-body">
+        <table class="comp-table">
+          <tr><td class="comp-lbl">PM Beginning (AM Ending)</td><td class="comp-val" id="pm-c-beg">&#8369;0</td></tr>
+          <tr><td class="comp-lbl">+ Cash Sales</td><td class="comp-val green" id="pm-c-cash">&#8369;0</td></tr>
+          <tr><td class="comp-lbl">&#8722; Expenses</td><td class="comp-val red" id="pm-c-exp">&#8369;0</td></tr>
+          <tr><td class="comp-sep" colspan="2"></td></tr>
+          <tr><td class="comp-lbl">= Computed Cash</td><td class="comp-val" id="pm-c-computed">&#8369;0</td></tr>
+          <tr><td class="comp-lbl">Actual Ending Cash</td><td class="comp-val" id="pm-c-actual">&#8369;0</td></tr>
+          <tr><td class="comp-sep" colspan="2"></td></tr>
+          <tr><td class="comp-lbl">&#128241; GCash (separate)</td><td class="comp-val blue" id="pm-c-gcash">&#8369;0</td></tr>
+        </table>
+        <div class="result-box ok" id="pm-result">
+          <div class="result-label" id="pm-r-lbl">&#9989; Balanced</div>
+          <div class="result-amt" id="pm-r-amt">&#8369;0</div>
+          <div class="result-sub" id="pm-r-sub">Cash is balanced</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAILY SUMMARY -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">&#128202; Daily Summary</span><span class="card-sub" id="d-date-lbl">—</span></div>
+    <div class="card-body">
+      <table class="comp-table">
+        <tr><td class="comp-lbl">&#128181; Total Cash Sales</td><td class="comp-val green" id="d-cash">&#8369;0</td></tr>
+        <tr><td class="comp-lbl">&#128241; Total GCash Sales</td><td class="comp-val blue" id="d-gcash">&#8369;0</td></tr>
+        <tr><td class="comp-lbl">&#128184; Total Expenses</td><td class="comp-val red" id="d-exp">&#8369;0</td></tr>
+        <tr><td class="comp-sep" colspan="2"></td></tr>
+        <tr><td class="comp-lbl">Today Beginning</td><td class="comp-val" id="d-beg">&#8369;0</td></tr>
+        <tr><td class="comp-lbl">Today Ending</td><td class="comp-val" id="d-end">&#8369;0</td></tr>
+      </table>
+      <div class="total-bar" style="margin-top:8px;">
+        <div class="total-lbl">TOTAL DAILY SALES</div>
+        <div class="total-val" id="d-total">&#8369;0</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbypTvNT7IhKQQPsHRDsp2L67SD3rLbM0X7-QvxCmzb3hixViuD8uufmtr1AZSYCeIZnMA/exec';
+const DENOMS=[1000,500,100,50,20,10,5,1];
+const fmtN=n=>'&#8369;'+Number(Math.round(n||0)).toLocaleString('en-PH');
+let numShifts=1,allRows=[],amCutoffSecs=null,pmCutoffSecs=null,amExp=[],pmExp=[];
+
+function G(id){return document.getElementById(id);}
+function S(id,v){const e=G(id);if(e)e.innerHTML=v;}
+function show(id){const e=G(id);if(e)e.classList.remove('hidden');}
+function hide(id){const e=G(id);if(e)e.classList.add('hidden');}
+
+function fixDate(d){
+  if(!d)return'';const s=String(d).trim();
+  if(s.includes('T'))return s.split('T')[0];
+  if(s.includes('/')){const p=s.split('/');if(p.length===3){const y=p[2].length===4?p[2]:'20'+p[2];return y+'-'+p[0].padStart(2,'0')+'-'+p[1].padStart(2,'0');}}
+  return s;
+}
+
+function toSecs(t){
+  if(!t)return 0;
+  let s=String(t).trim();
+  if(s.includes('T'))s=s.split('T')[1];
+  const p=s.split(':');
+  return parseInt(p[0]||0)*3600+parseInt(p[1]||0)*60+parseInt(p[2]||0);
+}
+
+function fmtT(t){
+  if(!t)return'';
+  let s=String(t).trim();
+  if(s.includes('T'))s=s.split('T')[1];
+  const p=s.split(':');
+  let h=parseInt(p[0]||0),m=parseInt(p[1]||0);
+  const ap=h>=12?'PM':'AM';h=h%12||12;
+  return h+':'+String(m).padStart(2,'0')+' '+ap;
+}
+
+function buildDenom(bodyId,prefix,cb){
+  const el=G(bodyId);if(!el)return;
+  el.innerHTML=DENOMS.map(d=>`<tr><td class="denom-num">&#8369;${Number(d).toLocaleString()}</td><td><input type="number" class="denom-input" id="${prefix}-${d}" min="0" placeholder="0" oninput="${cb}"></td><td class="denom-total-cell" id="${prefix}-${d}-a">&#8369;0</td></tr>`).join('');
+}
+
+function getDenom(prefix,totalId,subId){
+  let tot=0;
+  DENOMS.forEach(d=>{
+    const v=parseInt(G(prefix+'-'+d)?.value)||0;
+    tot+=v*d;
+    S(prefix+'-'+d+'-a',v>0?fmtN(v*d):'&#8369;0');
+  });
+  if(totalId)S(totalId,fmtN(tot));
+  if(subId)S(subId,fmtN(tot));
+  return tot;
+}
+
+async function loadSales(){
+  const date=G('sel-date').value;
+  if(!date){toast('Select a date first');return;}
+  S('d-date-lbl',date);
+  show('am-loading');hide('am-sales-body');hide('am-gcash-wrap');
+  toast('Loading sales from Sheets...');
+  try{
+    const res=await fetch(SCRIPT_URL+'?t='+Date.now());
+    const json=await res.json();
+    if(json.status==='ok'){
+      allRows=json.rows.filter(r=>fixDate(r.date)===date);
+      hide('am-loading');show('am-sales-body');
+      renderSales();
+      toast('Loaded '+allRows.length+' rows!');
+    }else throw new Error(json.message||'Error');
+  }catch(e){hide('am-loading');show('am-sales-body');toast('Error: '+e.message);}
+}
+
+function renderSales(){
+  const amRows=amCutoffSecs!==null?allRows.filter(r=>toSecs(r.timeCreated||r.time)<=amCutoffSecs):allRows;
+  const pmRows=amCutoffSecs!==null?allRows.filter(r=>toSecs(r.timeCreated||r.time)>amCutoffSecs):[];
+  renderShift('am',amRows);
+  if(numShifts===2)renderShift('pm',pmRows);
+  calcAll();
+}
+
+function renderShift(shift,rows){
+  const omap={};
+  rows.forEach(r=>{
+    const k=String(r.queue);
+    if(!omap[k])omap[k]={queue:k,payment:r.payment,total:parseFloat(r.order_total)||0,ref:r.gcashRef||''};
+  });
+  const orders=Object.values(omap);
+  const cashO=orders.filter(o=>o.payment!=='GCash');
+  const gcashO=orders.filter(o=>o.payment==='GCash');
+  const cashT=cashO.reduce((s,o)=>s+o.total,0);
+  const gcashT=gcashO.reduce((s,o)=>s+o.total,0);
+  S(shift+'-cash-disp',fmtN(cashT));
+  S(shift+'-gcash-disp',fmtN(gcashT));
+  S(shift+'-total-disp',fmtN(cashT+gcashT));
+  S(shift+'-sales-sub',orders.length+' orders');
+  const gcashWrap=G(shift+'-gcash-wrap');
+  if(gcashO.length&&gcashWrap){
+    show(shift+'-gcash-wrap');
+    S(shift+'-gcash-items',
+      '<table style="width:100%;border-collapse:collapse;">'+
+      '<tr style="background:var(--navy);"><th style="color:var(--yellow);font-family:Black Han Sans,sans-serif;font-size:10px;padding:5px 8px;text-align:left;">#</th><th style="color:var(--yellow);font-family:Black Han Sans,sans-serif;font-size:10px;padding:5px 8px;text-align:left;">Ref No.</th><th style="color:var(--yellow);font-family:Black Han Sans,sans-serif;font-size:10px;padding:5px 8px;text-align:right;">Amount</th></tr>'+
+      gcashO.map((o,i)=>`<tr style="background:${i%2===0?'var(--off)':'#fff'};border-bottom:1px solid var(--light);"><td style="font-family:Black Han Sans,sans-serif;font-size:12px;padding:6px 8px;color:var(--navy);">${o.queue}</td><td style="font-size:11px;font-weight:800;padding:6px 8px;color:var(--blue);letter-spacing:.5px;">${o.ref||'—'}</td><td style="font-family:Black Han Sans,sans-serif;font-size:13px;padding:6px 8px;color:var(--blue);text-align:right;">${fmtN(o.total)}</td></tr>`).join('')+
+      '<tr style="background:var(--navy);"><td colspan="2" style="font-family:Black Han Sans,sans-serif;font-size:11px;color:rgba(255,255,255,.7);padding:6px 8px;">TOTAL GCASH</td><td style="font-family:Black Han Sans,sans-serif;font-size:14px;color:var(--yellow);padding:6px 8px;text-align:right;">'+fmtN(gcashT)+'</td></tr>'+
+      '</table>'
+    );
+  }else if(gcashWrap){hide(shift+'-gcash-wrap');}
+}
+
+function endShift(shift){
+  const now=new Date();
+  const secs=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+  const timeStr=now.toTimeString().split(' ')[0];
+  if(shift==='am'){
+    if(amCutoffSecs!==null){toast('AM already ended');return;}
+    amCutoffSecs=secs;
+    G('am-end-btn').className='end-shift-btn ended';
+    G('am-end-btn').textContent='Done - AM Ended';
+    S('am-time-lbl','AM ended at '+fmtT(timeStr));
+    if(numShifts===2)S('pm-time-lbl','AM ended '+fmtT(timeStr)+'. Tap to end PM.');
+  }else{
+    if(pmCutoffSecs!==null){toast('PM already ended');return;}
+    pmCutoffSecs=secs;
+    G('pm-end-btn').className='end-shift-btn ended';
+    G('pm-end-btn').textContent='Done - PM Ended';
+    S('pm-time-lbl','PM ended at '+fmtT(timeStr));
+  }
+  renderSales();
+  toast(shift.toUpperCase()+' shift locked at '+fmtT(timeStr));
+}
+
+function addExp(shift){
+  if(shift==='am')amExp.push({name:'',amount:0});
+  else pmExp.push({name:'',amount:0});
+  renderExp(shift);
+}
+
+function renderExp(shift){
+  const arr=shift==='am'?amExp:pmExp;
+  const el=G(shift+'-exp-body');if(!el)return;
+  el.innerHTML=arr.map((e,i)=>`<div class="exp-row"><input type="text" class="exp-name" placeholder="Expense" value="${e.name}" oninput="updExp('${shift}',${i},'n',this.value)"><input type="number" class="exp-amt" placeholder="0" value="${e.amount||''}" oninput="updExp('${shift}',${i},'a',this.value)"><button class="exp-del" onclick="delExp('${shift}',${i})">x</button></div>`).join('')+`<button class="add-btn" onclick="addExp('${shift}')">+ Add Expense</button>`;
+  calcAll();
+}
+
+function updExp(shift,i,f,v){const arr=shift==='am'?amExp:pmExp;if(f==='n')arr[i].name=v;else arr[i].amount=parseFloat(v)||0;calcAll();}
+function delExp(shift,i){if(shift==='am')amExp.splice(i,1);else pmExp.splice(i,1);renderExp(shift);}
+function getExpT(shift){return(shift==='am'?amExp:pmExp).reduce((s,e)=>s+(parseFloat(e.amount)||0),0);}
+
+function parseFmt(s){return parseFloat(String(s||0).replace(/[&#8369;,]/g,'').replace(/&amp;#8369;/g,''))||0;}
+
+function calcAll(){
+  const yest=getDenom('yest','yest-total',null);
+  const amEnd=getDenom('am-end','am-end-total','am-end-sub');
+  const pmEnd=getDenom('pm-end','pm-end-total','pm-end-sub');
+  const amExpT=getExpT('am');const pmExpT=getExpT('pm');
+  S('am-exp-sub',fmtN(amExpT));S('pm-exp-sub',fmtN(pmExpT));
+
+  const amCash=parseFmt(G('am-cash-disp')?.textContent);
+  const amGcash=parseFmt(G('am-gcash-disp')?.textContent);
+  const pmCash=parseFmt(G('pm-cash-disp')?.textContent);
+  const pmGcash=parseFmt(G('pm-gcash-disp')?.textContent);
+
+  // AM
+  const amComp=yest+amCash-amExpT;
+  const amDiff=amEnd-amComp;
+  S('am-c-beg',fmtN(yest));S('am-c-cash',fmtN(amCash));S('am-c-exp',fmtN(amExpT));
+  S('am-c-computed',fmtN(amComp));S('am-c-actual',fmtN(amEnd));S('am-c-gcash',fmtN(amGcash));
+  showResult('am',amDiff);
+
+  // PM
+  if(numShifts===2){
+    const pmComp=amEnd+pmCash-pmExpT;
+    const pmDiff=pmEnd-pmComp;
+    S('pm-c-beg',fmtN(amEnd));S('pm-c-cash',fmtN(pmCash));S('pm-c-exp',fmtN(pmExpT));
+    S('pm-c-computed',fmtN(pmComp));S('pm-c-actual',fmtN(pmEnd));S('pm-c-gcash',fmtN(pmGcash));
+    showResult('pm',pmDiff);
+  }
+
+  // Daily
+  const tCash=amCash+(numShifts===2?pmCash:0);
+  const tGcash=amGcash+(numShifts===2?pmGcash:0);
+  const tExp=amExpT+(numShifts===2?pmExpT:0);
+  const todayEnd=numShifts===2?pmEnd:amEnd;
+  S('d-cash',fmtN(tCash));S('d-gcash',fmtN(tGcash));S('d-exp',fmtN(tExp));
+  S('d-beg',fmtN(yest));S('d-end',fmtN(todayEnd));S('d-total',fmtN(tCash+tGcash));
+  try{updateCopySummary();}catch(e){}
+}
+
+function showResult(shift,diff){
+  const box=G(shift+'-result');
+  const lbl=G(shift+'-r-lbl');const amt=G(shift+'-r-amt');const sub=G(shift+'-r-sub');
+  if(!box)return;
+  if(Math.abs(diff)<1){box.className='result-box ok';lbl.textContent='Balanced';amt.innerHTML='&#8369;0';amt.style.color='#15803d';sub.textContent='Cash is exactly right!';}
+  else if(diff<0){box.className='result-box short';lbl.textContent='SHORT';amt.innerHTML=fmtN(Math.abs(diff));amt.style.color='#dc2626';sub.textContent='Cashier is short by '+fmtN(Math.abs(diff));}
+  else{box.className='result-box over';lbl.textContent='OVER';amt.innerHTML=fmtN(diff);amt.style.color='#92400e';sub.textContent='Cashier has '+fmtN(diff)+' extra';}
+}
+
+function setShifts(n){
+  numShifts=n;
+  G('btn-1s').classList.toggle('active',n===1);
+  G('btn-2s').classList.toggle('active',n===2);
+  if(n===2){show('pm-wrap');S('am-div-title','&#9728;&#65039; AM Shift');}
+  else{hide('pm-wrap');S('am-div-title','&#9728;&#65039; Shift');}
+  calcAll();
+}
+
+let toastT;
+function toast(msg){const t=G('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2500);}
+
+function updateCopySummary(){
+  const date=G('sel-date').value||'—';
+  const cashier=G('cashier-name')?.value||'—';
+  const yest=parseFmt(G('yest-total')?.innerHTML);
+  const amEnd=parseFmt(G('am-end-total')?.innerHTML);
+  const pmEnd=parseFmt(G('pm-end-total')?.innerHTML);
+  const amCash=parseFmt(G('am-cash-disp')?.textContent);
+  const amGcash=parseFmt(G('am-gcash-disp')?.textContent);
+  const pmCash=parseFmt(G('pm-cash-disp')?.textContent);
+  const pmGcash=parseFmt(G('pm-gcash-disp')?.textContent);
+  const amExpT=getExpT('am');
+  const pmExpT=getExpT('pm');
+  const amComp=yest+amCash-amExpT;
+  const amDiff=amEnd-amComp;
+  const tCash=amCash+(numShifts===2?pmCash:0);
+  const tGcash=amGcash+(numShifts===2?pmGcash:0);
+
+  const p=n=>n.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+  const pad=(s,w)=>String(s).padEnd(w,' ');
+
+  let txt='';
+  txt+='================================\n';
+  txt+='  SNOWEE CASHIER SUMMARY\n';
+  txt+='================================\n';
+  txt+='Date    : '+date+'\n';
+  txt+='Cashier : '+cashier+'\n';
+  txt+='Shift   : '+(numShifts===2?'AM + PM':'1 Shift')+'\n';
+  txt+='================================\n';
+  txt+='\n';
+
+  // AM
+  txt+='--- '+(numShifts===2?'AM SHIFT':'SHIFT')+' ---\n';
+  txt+='Yesterday Ending : '+p(yest)+'\n';
+  txt+='Today Beginning  : '+p(yest)+'\n';
+  txt+='\n';
+  txt+='SALES AM         : '+p(amCash+amGcash)+'\n';
+  txt+='  Cash Sales     : '+p(amCash)+'\n';
+  txt+='  GCash          : '+p(amGcash)+'\n';
+  if(amExpT>0)txt+='Expenses         : '+p(amExpT)+'\n';
+  txt+='\n';
+  txt+='  Cash In        \n';
+  txt+='  Sales AM       : '+p(amCash)+'\n';
+  txt+='  Beginning      : '+p(yest)+'\n';
+  txt+='  Total          : '+p(yest+amCash)+'\n';
+  txt+='\n';
+  txt+='  Cash Out       \n';
+  txt+='  Expenses       : '+p(amExpT)+'\n';
+  txt+='\n';
+  txt+='  Computed       : '+p(amComp)+'\n';
+  txt+='  Actual         : '+p(amEnd)+'\n';
+  txt+='  Diff           : '+p(amDiff)+(amDiff>0?' (OVER)':amDiff<0?' (SHORT)':' (OK)')+'\n';
+  txt+='\n';
+
+  // Beg denomination
+  txt+='  Beginning Denominations:\n';
+  let begDenom='';
+  DENOMS.forEach(d=>{
+    const v=parseInt(G('yest-'+d)?.value)||0;
+    if(v>0)begDenom+='  P'+String(d).padStart(4,' ')+' x'+String(v).padStart(4,' ')+' = '+p(v*d)+'\n';
+  });
+  txt+=begDenom||'  (none entered)\n';
+
+  // End denomination
+  txt+='  Ending Denominations:\n';
+  let endDenom='';
+  DENOMS.forEach(d=>{
+    const v=parseInt(G('am-end-'+d)?.value)||0;
+    if(v>0)endDenom+='  P'+String(d).padStart(4,' ')+' x'+String(v).padStart(4,' ')+' = '+p(v*d)+'\n';
+  });
+  txt+=endDenom||'  (none entered)\n';
+
+  // PM
+  if(numShifts===2){
+    const pmComp=amEnd+pmCash-pmExpT;
+    const pmDiff=pmEnd-pmComp;
+    txt+='\n--- PM SHIFT ---\n';
+    txt+='PM Beginning     : '+p(amEnd)+'\n';
+    txt+='SALES PM         : '+p(pmCash+pmGcash)+'\n';
+    txt+='  Cash Sales     : '+p(pmCash)+'\n';
+    txt+='  GCash          : '+p(pmGcash)+'\n';
+    if(pmExpT>0)txt+='Expenses         : '+p(pmExpT)+'\n';
+    txt+='\n';
+    txt+='  Computed       : '+p(pmComp)+'\n';
+    txt+='  Actual         : '+p(pmEnd)+'\n';
+    txt+='  Diff           : '+p(pmDiff)+(pmDiff>0?' (OVER)':pmDiff<0?' (SHORT)':' (OK)')+'\n';
+  }
+
+  txt+='\n================================\n';
+  txt+='TOTAL DAILY SALES: '+p(tCash+tGcash)+'\n';
+  txt+='  Cash            : '+p(tCash)+'\n';
+  txt+='  GCash           : '+p(tGcash)+'\n';
+  txt+='================================\n';
+
+  const el=G('copy-text');
+  if(el)el.textContent=txt;
+}
+
+function copySummary(){
+  updateCopySummary();
+  const txt=G('copy-text')?.textContent||'';
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>toast('Copied to clipboard!'));
+  } else {
+    const ta=document.createElement('textarea');
+    ta.value=txt;document.body.appendChild(ta);ta.select();
+    document.execCommand('copy');document.body.removeChild(ta);
+    toast('Copied!');
+  }
+}
+
+function init(){
+  const today=new Date().toISOString().split('T')[0];
+  G('sel-date').value=today;S('d-date-lbl',today);
+  buildDenom('yest-body','yest','calcAll()');
+  buildDenom('am-end-body','am-end','calcAll()');
+  buildDenom('pm-end-body','pm-end','calcAll()');
+  amExp=[{name:'',amount:0}];pmExp=[{name:'',amount:0}];
+  renderExp('am');renderExp('pm');
+  loadSales();
+}
+init();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('cashier-sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>

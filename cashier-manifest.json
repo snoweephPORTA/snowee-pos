@@ -1,0 +1,37 @@
+{
+  "name": "Snowee Cashier",
+  "short_name": "Cashier",
+  "description": "Snowee Cashier Summary \u2014 Shift Management",
+  "start_url": "/snowee-pos/cashier.html",
+  "scope": "/snowee-pos/cashier.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B3A6B",
+  "theme_color": "#FFD700",
+  "icons": [
+    {
+      "src": "cashier-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "cashier-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "cashier-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "cashier-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
