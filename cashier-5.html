@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snowee Cashier</title>
+<link rel="manifest" href="cashier-manifest.json">
+<meta name="theme-color" content="#FFD700">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cashier">
+<link rel="apple-touch-icon" href="cashier-icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--navy2:#234a87;
+  --yellow:#FFD700;--yellow2:#FFF9C4;--yellow-dark:#E6BE00;
+  --green:#22C55E;--green2:#dcfce7;
+  --red:#EF4444;--red2:#fee2e2;
+  --blue:#3B82F6;--blue2:#dbeafe;
+  --white:#fff;--off:#F4F7FF;--light:#E8EEF8;--gray:#6B7A99;
+  --shadow:0 4px 20px rgba(27,58,107,.12);--r:14px;--rs:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{min-height:100%;font-family:'Nunito',sans-serif;background:var(--off);color:var(--navy);}
+.topnav{background:var(--navy);border-bottom:3px solid var(--yellow);padding:0 14px;height:55px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.logo{font-family:'Black Han Sans',sans-serif;color:var(--yellow);font-size:18px;}
+.logo span{color:#fff;}
+.content{padding:10px;display:flex;flex-direction:column;gap:10px;max-width:600px;margin:0 auto;padding-bottom:30px;}
+.card{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);border:2px solid var(--light);overflow:hidden;}
+.card-hd{background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--yellow);}
+.card-sub{font-size:10px;font-weight:800;color:rgba(255,255,255,.5);}
+.card-body{padding:12px 14px;display:flex;flex-direction:column;gap:8px;}
+.fl{font-size:10px;font-weight:800;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;}
+.fi{background:var(--off);border:2px solid var(--light);border-radius:var(--rs);padding:9px 11px;font-weight:800;font-size:14px;color:var(--navy);outline:none;width:100%;}
+.fi:focus{border-color:var(--yellow);}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.shift-toggle{display:flex;gap:6px;}
+.shift-btn{flex:1;background:var(--off);border:2px solid var(--light);border-radius:var(--rs);padding:10px;font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--gray);cursor:pointer;text-align:center;}
+.shift-btn.active{background:var(--yellow);border-color:var(--yellow-dark);color:var(--navy);}
+.denom-table{width:100%;border-collapse:collapse;}
+.denom-table th{background:var(--navy);color:var(--yellow);font-family:'Black Han Sans',sans-serif;font-size:11px;padding:6px 8px;text-align:center;}
+.denom-table td{padding:5px 8px;border-bottom:1px solid var(--light);text-align:center;font-size:12px;font-weight:800;}
+.denom-table tr:last-child td{border-bottom:none;}
+.denom-table tr:nth-child(even) td{background:var(--off);}
+.denom-bill{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--navy);}
+.denom-in{background:var(--off);border:2px solid var(--light);border-radius:7px;padding:5px 4px;font-weight:900;font-size:14px;color:var(--navy);outline:none;width:60px;text-align:center;}
+.denom-in:focus{border-color:var(--yellow);}
+.denom-amt{font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--navy2);}
+.denom-foot td{background:var(--navy);color:var(--yellow);font-family:'Black Han Sans',sans-serif;font-size:13px;padding:8px;}
+.comp-table{width:100%;border-collapse:collapse;}
+.comp-table td{padding:7px 8px;border-bottom:1px solid var(--light);font-size:12px;}
+.comp-table tr:last-child td{border-bottom:none;}
+.cl{font-weight:800;color:var(--gray);}
+.cv{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);text-align:right;}
+.cv.g{color:var(--green);}
+.cv.r{color:var(--red);}
+.cv.b{color:var(--blue);}
+.csep{background:var(--light);height:2px;padding:0!important;}
+.result-box{border-radius:12px;padding:14px;text-align:center;margin-top:6px;}
+.result-box.ok{background:var(--green2);border:2px solid var(--green);}
+.result-box.short{background:var(--red2);border:2px solid var(--red);}
+.result-box.over{background:var(--yellow2);border:2px solid var(--yellow-dark);}
+.rl{font-family:'Black Han Sans',sans-serif;font-size:16px;}
+.ra{font-family:'Black Han Sans',sans-serif;font-size:34px;margin:4px 0;}
+.rs{font-size:11px;font-weight:700;color:var(--gray);}
+.total-bar{background:var(--navy);border-radius:10px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+.tl{font-family:'Black Han Sans',sans-serif;font-size:13px;color:rgba(255,255,255,.7);}
+.tv{font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--yellow);}
+.exp-row{display:flex;gap:6px;align-items:center;}
+.exp-name{flex:1;background:var(--off);border:2px solid var(--light);border-radius:8px;padding:7px 9px;font-weight:700;font-size:12px;color:var(--navy);outline:none;}
+.exp-name:focus{border-color:var(--yellow);}
+.exp-amt{width:90px;background:var(--off);border:2px solid var(--light);border-radius:8px;padding:7px 9px;font-weight:800;font-size:12px;color:var(--navy);outline:none;text-align:right;}
+.exp-amt:focus{border-color:var(--yellow);}
+.exp-del{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;padding:0 4px;line-height:1;}
+.add-btn{background:var(--off);border:2px dashed var(--light);border-radius:8px;padding:8px;font-weight:800;font-size:12px;color:var(--gray);cursor:pointer;width:100%;text-align:center;}
+.shift-lbl{font-size:11px;font-weight:800;color:var(--gray);text-align:center;}
+.shift-div{background:var(--navy2);color:var(--yellow);font-family:'Black Han Sans',sans-serif;font-size:14px;padding:10px 14px;border-radius:10px;text-align:center;}
+.hidden{display:none!important;}
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--yellow);font-weight:900;font-size:12px;padding:8px 16px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:500;white-space:nowrap;border:2px solid var(--yellow);}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="logo">sn<span>ow</span>ee <span style="font-size:11px;color:rgba(255,255,255,.5);font-family:'Nunito',sans-serif;font-weight:800;">Cashier</span></div>
+</div>
+
+<div class="content">
+
+  <!-- SETUP -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">Setup</span></div>
+    <div class="card-body">
+      <div class="row2">
+        <div class="fg"><div class="fl">Date</div><input type="date" class="fi" id="inp-date"></div>
+        <div class="fg"><div class="fl">AM Cashier</div><input type="text" class="fi" id="inp-cashier" placeholder="Name"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- YESTERDAY ENDING -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">Yesterday Ending = Today Beginning</span><span class="card-sub" id="yest-sub">0</span></div>
+    <div class="card-body">
+      <table class="denom-table">
+        <thead><tr><th>Bill/Coin</th><th>Pieces</th><th>Amount</th></tr></thead>
+        <tbody id="yest-body"></tbody>
+        <tfoot><tr class="denom-foot"><td colspan="2" style="text-align:right;">YESTERDAY ENDING =</td><td id="yest-total">0</td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- AM SHIFT -->
+  <div id="am-wrap">
+    <div class="shift-div" style="background:#b8860b;">AM Shift</div>
+
+
+
+    <!-- Sales -->
+    <div class="card" style="border-color:#E6BE00;">
+      <div class="card-hd" style="background:#b8860b;"><span class="card-title">Sales</span><span class="card-sub" id="am-sales-sub">0</span></div>
+      <div class="card-body">
+        <div class="fg"><div class="fl">Cash Sales</div><input type="number" class="fi" id="am-cash" placeholder="0" oninput="calcAll()"></div>
+        <div class="fg"><div class="fl">GCash Sales</div><input type="number" class="fi" id="am-gcash" placeholder="0" oninput="calcAll()"></div>
+        <div class="total-bar"><div class="tl">Total Sales</div><div class="tv" id="am-total">0</div></div>
+      </div>
+    </div>
+
+    <!-- Deposit -->
+    <div class="card" style="border-color:#E6BE00;">
+      <div class="card-hd" style="background:#b8860b;"><span class="card-title">Deposit</span><span class="card-sub" id="am-dep-sub">0</span></div>
+      <div class="card-body">
+        <div class="fg"><div class="fl">Cash Deposited this shift</div><input type="number" class="fi" id="am-deposit" placeholder="0" oninput="calcAll()"></div>
+      </div>
+    </div>
+
+    <!-- Expenses -->
+    <div class="card" style="border-color:#E6BE00;">
+      <div class="card-hd" style="background:#b8860b;"><span class="card-title">Expenses</span><span class="card-sub" id="am-exp-sub">0</span></div>
+      <div class="card-body" id="am-exp-body">
+        <button class="add-btn" onclick="addExp('am')">+ Add Expense</button>
+      </div>
+    </div>
+
+    <!-- Ending Cash -->
+    <div class="card" style="border-color:#E6BE00;">
+      <div class="card-hd" style="background:#b8860b;"><span class="card-title">Ending Cash</span><span class="card-sub" id="am-end-sub">0</span></div>
+      <div class="card-body">
+        <table class="denom-table">
+          <thead><tr><th>Bill/Coin</th><th>Pieces</th><th>Amount</th></tr></thead>
+          <tbody id="am-end-body"></tbody>
+          <tfoot><tr class="denom-foot"><td colspan="2" style="text-align:right;">ENDING CASH =</td><td id="am-end-total">0</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Computation -->
+    <div class="card" style="border-color:#E6BE00;">
+      <div class="card-hd" style="background:#b8860b;"><span class="card-title">Computation</span></div>
+      <div class="card-body">
+        <table class="comp-table">
+          <tr><td class="cl">Today Beginning</td><td class="cv" id="am-c-beg">0</td></tr>
+          <tr><td class="cl">+ Cash Sales</td><td class="cv g" id="am-c-cash">0</td></tr>
+          <tr><td class="cl">- Deposit</td><td class="cv r" id="am-c-dep">0</td></tr>
+          <tr><td class="cl">- Expenses</td><td class="cv r" id="am-c-exp">0</td></tr>
+          <tr><td class="csep" colspan="2"></td></tr>
+          <tr><td class="cl">= Computed Cash</td><td class="cv" id="am-c-computed">0</td></tr>
+          <tr><td class="cl">Actual Ending Cash</td><td class="cv" id="am-c-actual">0</td></tr>
+          <tr><td class="csep" colspan="2"></td></tr>
+          <tr><td class="cl">GCash (separate)</td><td class="cv b" id="am-c-gcash">0</td></tr>
+        </table>
+        <div class="result-box ok" id="am-result">
+          <div class="rl" id="am-r-lbl">Balanced</div>
+          <div class="ra" id="am-r-amt">0</div>
+          <div class="rs" id="am-r-sub">Cash is balanced</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PM SHIFT -->
+  <div id="pm-wrap">
+    <div class="shift-div" style="background:#2d1b6b;">PM Shift</div>
+    <div class="card" style="border-color:#a855f7;">
+      <div class="card-hd" style="background:#2d1b6b;"><span class="card-title">PM Cashier</span></div>
+      <div class="card-body">
+        <div class="fg"><div class="fl">PM Cashier Name</div><input type="text" class="fi" id="inp-pm-cashier" placeholder="Name"></div>
+      </div>
+    </div>
+
+
+
+    <!-- PM Sales -->
+    <div class="card">
+      <div class="card-hd" style="background:#2d1b6b;"><span class="card-title">PM Sales (Enter All Day Totals)</span><span class="card-sub" id="pm-sales-sub">0</span></div>
+      <div class="card-body">
+        <div class="fg"><div class="fl">All Day Cash Sales</div><input type="number" class="fi" id="pm-cash-allday" placeholder="0" oninput="calcAll()"></div>
+        <div class="fg"><div class="fl">All Day GCash Sales</div><input type="number" class="fi" id="pm-gcash-allday" placeholder="0" oninput="calcAll()"></div>
+        <div style="background:var(--off);border-radius:10px;padding:10px;border:2px solid var(--light);display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:10px;font-weight:800;color:var(--gray);text-transform:uppercase;">PM Only (Auto-computed)</div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;font-weight:800;color:var(--gray);">Cash Sales PM</span><span style="font-family:Black Han Sans,sans-serif;font-size:14px;color:var(--green);" id="pm-cash">0</span></div>
+          <div style="display:flex;justify-content:space-between;"><span style="font-size:12px;font-weight:800;color:var(--gray);">GCash Sales PM</span><span style="font-family:Black Han Sans,sans-serif;font-size:14px;color:var(--blue);" id="pm-gcash">0</span></div>
+        </div>
+        <div class="total-bar"><div class="tl">Total PM Sales</div><div class="tv" id="pm-total">0</div></div>
+      </div>
+    </div>
+
+    <!-- PM Deposit -->
+    <div class="card">
+      <div class="card-hd" style="background:#2d1b6b;"><span class="card-title">PM Deposit</span><span class="card-sub" id="pm-dep-sub">0</span></div>
+      <div class="card-body">
+        <div class="fg"><div class="fl">Cash Deposited this shift</div><input type="number" class="fi" id="pm-deposit" placeholder="0" oninput="calcAll()"></div>
+      </div>
+    </div>
+
+    <!-- PM Expenses -->
+    <div class="card">
+      <div class="card-hd" style="background:#2d1b6b;"><span class="card-title">PM Expenses</span><span class="card-sub" id="pm-exp-sub">0</span></div>
+      <div class="card-body" id="pm-exp-body">
+        <button class="add-btn" onclick="addExp('pm')">+ Add Expense</button>
+      </div>
+    </div>
+
+    <!-- PM Ending Cash -->
+    <div class="card">
+      <div class="card-hd" style="background:#2d1b6b;"><span class="card-title">PM Ending Cash</span><span class="card-sub" id="pm-end-sub">0</span></div>
+      <div class="card-body">
+        <table class="denom-table">
+          <thead><tr><th>Bill/Coin</th><th>Pieces</th><th>Amount</th></tr></thead>
+          <tbody id="pm-end-body"></tbody>
+          <tfoot><tr class="denom-foot"><td colspan="2" style="text-align:right;">ENDING CASH =</td><td id="pm-end-total">0</td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- PM Computation -->
+    <div class="card">
+      <div class="card-hd" style="background:#2d1b6b;"><span class="card-title">PM Computation</span></div>
+      <div class="card-body">
+        <table class="comp-table">
+          <tr><td class="cl">PM Beginning (AM Ending)</td><td class="cv" id="pm-c-beg">0</td></tr>
+          <tr><td class="cl">+ Cash Sales</td><td class="cv g" id="pm-c-cash">0</td></tr>
+          <tr><td class="cl">- Deposit</td><td class="cv r" id="pm-c-dep">0</td></tr>
+          <tr><td class="cl">- Expenses</td><td class="cv r" id="pm-c-exp">0</td></tr>
+          <tr><td class="csep" colspan="2"></td></tr>
+          <tr><td class="cl">= Computed Cash</td><td class="cv" id="pm-c-computed">0</td></tr>
+          <tr><td class="cl">Actual Ending Cash</td><td class="cv" id="pm-c-actual">0</td></tr>
+          <tr><td class="csep" colspan="2"></td></tr>
+          <tr><td class="cl">GCash (separate)</td><td class="cv b" id="pm-c-gcash">0</td></tr>
+        </table>
+        <div class="result-box ok" id="pm-result">
+          <div class="rl" id="pm-r-lbl">Balanced</div>
+          <div class="ra" id="pm-r-amt">0</div>
+          <div class="rs" id="pm-r-sub">Cash is balanced</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAILY SUMMARY -->
+  <div class="card">
+    <div class="card-hd"><span class="card-title">Daily Summary</span></div>
+    <div class="card-body">
+      <table class="comp-table">
+        <tr><td class="cl">Total Cash Sales</td><td class="cv g" id="d-cash">0</td></tr>
+        <tr><td class="cl">Total GCash Sales</td><td class="cv b" id="d-gcash">0</td></tr>
+        <tr><td class="cl">Total Deposit</td><td class="cv r" id="d-dep">0</td></tr>
+        <tr><td class="cl">Total Expenses</td><td class="cv r" id="d-exp">0</td></tr>
+        <tr><td class="csep" colspan="2"></td></tr>
+        <tr><td class="cl">Today Beginning</td><td class="cv" id="d-beg">0</td></tr>
+        <tr><td class="cl">Today Ending</td><td class="cv" id="d-end">0</td></tr>
+      </table>
+      <div class="total-bar" style="margin-top:8px;">
+        <div class="tl">TOTAL DAILY SALES</div>
+        <div class="tv" id="d-total">0</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DENOMS = [1000,500,100,50,20,10,5,1];
+const P = n => 'P' + Number(Math.round(n||0)).toLocaleString('en-PH');
+const numShifts = 2;
+let amExp = [], pmExp = [];
+
+function G(id){ return document.getElementById(id); }
+function S(id,v){ const e=G(id); if(e) e.textContent=v; }
+function show(id){ const e=G(id); if(e) e.classList.remove('hidden'); }
+function hide(id){ const e=G(id); if(e) e.classList.add('hidden'); }
+function num(id){ return parseFloat(G(id)?.value)||0; }
+
+// Build denomination table
+function buildDenom(bodyId, prefix){
+  const el = G(bodyId);
+  if(!el) return;
+  el.innerHTML = DENOMS.map(d =>
+    '<tr>' +
+    '<td class="denom-bill">P' + Number(d).toLocaleString() + '</td>' +
+    '<td><input type="number" class="denom-in" id="' + prefix + '-' + d + '" min="0" placeholder="0" oninput="calcAll()"></td>' +
+    '<td class="denom-amt" id="' + prefix + '-' + d + '-a">0</td>' +
+    '</tr>'
+  ).join('');
+}
+
+function getDenom(prefix, totalId, subId){
+  let tot = 0;
+  DENOMS.forEach(d => {
+    const v = parseInt(G(prefix+'-'+d)?.value)||0;
+    tot += v*d;
+    S(prefix+'-'+d+'-a', v>0 ? P(v*d) : '0');
+  });
+  if(totalId) S(totalId, P(tot));
+  if(subId) S(subId, P(tot));
+  return tot;
+}
+
+// Expenses
+function addExp(shift){
+  if(shift==='am') amExp.push({name:'',amount:0});
+  else pmExp.push({name:'',amount:0});
+  renderExp(shift);
+}
+
+function renderExp(shift){
+  const arr = shift==='am' ? amExp : pmExp;
+  const el = G(shift+'-exp-body');
+  if(!el) return;
+  let html = arr.map((e,i) =>
+    '<div class="exp-row">' +
+    '<input type="text" class="exp-name" placeholder="Expense" value="' + (e.name||'') + '" oninput="updExp(\'' + shift + '\',' + i + ',\'n\',this.value)">' +
+    '<input type="number" class="exp-amt" placeholder="0" value="' + (e.amount||'') + '" oninput="updExp(\'' + shift + '\',' + i + ',\'a\',this.value)">' +
+    '<button class="exp-del" onclick="delExp(\'' + shift + '\',' + i + ')">x</button>' +
+    '</div>'
+  ).join('');
+  html += '<button class="add-btn" onclick="addExp(\'' + shift + '\')">+ Add Expense</button>';
+  el.innerHTML = html;
+  calcAll();
+}
+
+function updExp(shift,i,f,v){
+  const arr = shift==='am' ? amExp : pmExp;
+  if(f==='n') arr[i].name=v;
+  else arr[i].amount=parseFloat(v)||0;
+  calcAll();
+}
+
+function delExp(shift,i){
+  if(shift==='am') amExp.splice(i,1);
+  else pmExp.splice(i,1);
+  renderExp(shift);
+}
+
+function getExpT(shift){
+  return (shift==='am' ? amExp : pmExp).reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+}
+
+// Calc
+function calcAll(){
+  const yest = getDenom('yest', 'yest-total', 'yest-sub');
+  const amEnd = getDenom('am-end', 'am-end-total', 'am-end-sub');
+  const pmEnd = getDenom('pm-end', 'pm-end-total', 'pm-end-sub');
+
+  const amCash = num('am-cash');
+  const amGcash = num('am-gcash');
+  const amDep = num('am-deposit');
+  const amExpT = getExpT('am');
+
+  const pmCashAllDay = num('pm-cash-allday');
+  const pmGcashAllDay = num('pm-gcash-allday');
+  const pmCash = Math.max(0, pmCashAllDay - amCash);
+  const pmGcash = Math.max(0, pmGcashAllDay - amGcash);
+  // Update PM only display
+  S('pm-cash', 'P'+Number(Math.round(pmCash)).toLocaleString('en-PH'));
+  S('pm-gcash', 'P'+Number(Math.round(pmGcash)).toLocaleString('en-PH'));
+  const pmDep = num('pm-deposit');
+  const pmExpT = getExpT('pm');
+
+  // Update totals
+  S('am-sales-sub', P(amCash+amGcash));
+  S('am-total', P(amCash+amGcash));
+  S('am-dep-sub', P(amDep));
+  S('am-exp-sub', P(amExpT));
+  S('pm-sales-sub', P(pmCash+pmGcash));
+  S('pm-total', P(pmCash+pmGcash));
+  S('pm-dep-sub', P(pmDep));
+  S('pm-exp-sub', P(pmExpT));
+
+  // AM computation
+  const amComp = yest + amCash - amDep - amExpT;
+  const amDiff = amEnd - amComp;
+  S('am-c-beg', P(yest));
+  S('am-c-cash', P(amCash));
+  S('am-c-dep', P(amDep));
+  S('am-c-exp', P(amExpT));
+  S('am-c-computed', P(amComp));
+  S('am-c-actual', P(amEnd));
+  S('am-c-gcash', P(amGcash));
+  showResult('am', amDiff);
+
+  // PM computation
+  if(numShifts===2){
+    const pmComp = amEnd + pmCash - pmDep - pmExpT;
+    const pmDiff = pmEnd - pmComp;
+    S('pm-c-beg', P(amEnd));
+    S('pm-c-cash', P(pmCash));
+    S('pm-c-dep', P(pmDep));
+    S('pm-c-exp', P(pmExpT));
+    S('pm-c-computed', P(pmComp));
+    S('pm-c-actual', P(pmEnd));
+    S('pm-c-gcash', P(pmGcash));
+    showResult('pm', pmDiff);
+  }
+
+  // Daily
+  const tCash = amCash + (numShifts===2 ? pmCash : 0);
+  const tGcash = amGcash + (numShifts===2 ? pmGcash : 0);
+  const tDep = amDep + (numShifts===2 ? pmDep : 0);
+  const tExp = amExpT + (numShifts===2 ? pmExpT : 0);
+  const todayEnd = numShifts===2 ? pmEnd : amEnd;
+  S('d-cash', P(tCash));
+  S('d-gcash', P(tGcash));
+  S('d-dep', P(tDep));
+  S('d-exp', P(tExp));
+  S('d-beg', P(yest));
+  S('d-end', P(todayEnd));
+  S('d-total', P(tCash+tGcash));
+}
+
+function showResult(shift, diff){
+  const box = G(shift+'-result');
+  const lbl = G(shift+'-r-lbl');
+  const amt = G(shift+'-r-amt');
+  const sub = G(shift+'-r-sub');
+  if(!box) return;
+  if(Math.abs(diff)<1){
+    box.className='result-box ok';
+    lbl.textContent='Balanced';
+    amt.textContent='P0';
+    amt.style.color='#15803d';
+    sub.textContent='Cash is exactly right!';
+  } else if(diff<0){
+    box.className='result-box short';
+    lbl.textContent='SHORT';
+    amt.textContent=P(Math.abs(diff));
+    amt.style.color='#dc2626';
+    sub.textContent='Cashier is short by '+P(Math.abs(diff));
+  } else {
+    box.className='result-box over';
+    lbl.textContent='OVER';
+    amt.textContent=P(diff);
+    amt.style.color='#92400e';
+    sub.textContent='Cashier has '+P(diff)+' extra';
+  }
+}
+
+
+
+
+
+let toastT;
+function toast(msg){
+  const t=G('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+function init(){
+  G('inp-date').value = new Date().toISOString().split('T')[0];
+  buildDenom('yest-body','yest');
+  buildDenom('am-end-body','am-end');
+  buildDenom('pm-end-body','pm-end');
+  amExp = [{name:'',amount:0}];
+  pmExp = [{name:'',amount:0}];
+  renderExp('am');
+  renderExp('pm');
+}
+
+init();
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('cashier-sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
