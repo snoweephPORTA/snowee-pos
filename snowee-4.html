@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snowee</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Snowee">
+<meta name="theme-color" content="#1B3A6B">
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#1B3A6B;--navy-mid:#234a87;--yellow:#FFD700;--yellow-dark:#E6BE00;--yellow-light:#FFF9C4;--white:#FFFFFF;--offwhite:#F4F7FF;--blue-light:#E8EEF8;--red:#E63946;--green:#22C55E;--gray:#6B7A99;--light-gray:#E8EEF8;--shadow:0 4px 18px rgba(27,58,107,.12);--radius:14px;--radius-sm:9px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{height:100%;}
+body{font-family:'Nunito',sans-serif;background:var(--offwhite);color:var(--navy);display:table;width:100%;height:100%;}
+.topnav{display:table-row;background:var(--navy);border-bottom:3px solid var(--yellow);}
+.topnav-inner{display:flex;align-items:center;justify-content:space-between;padding:0 10px;height:55px;}
+.logo{font-family:'Black Han Sans',sans-serif;color:var(--yellow);font-size:22px;letter-spacing:1px;}
+.logo span{color:#fff;}
+.tabs{display:flex;gap:3px;}
+.tab{background:transparent;border:2px solid rgba(255,215,0,.3);border-radius:20px;color:rgba(255,255,255,.65);font-family:'Nunito',sans-serif;font-weight:800;font-size:11px;padding:4px 8px;cursor:pointer;white-space:nowrap;}
+.tab.active{background:var(--yellow);border-color:var(--yellow);color:var(--navy);}
+.badge{background:var(--red);color:#fff;border-radius:50%;font-size:10px;font-weight:900;width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;margin-left:2px;vertical-align:middle;}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex-shrink:0;}
+.dot.off{background:var(--red);box-shadow:0 0 6px var(--red);}
+.screen-wrap{display:table-row;height:100%;}
+.screen-cell{display:table-cell;vertical-align:top;position:relative;}
+.screen{display:none;position:absolute;top:0;left:0;right:0;bottom:0;}
+.screen.active{display:flex;flex-direction:column;}
+#screen-pos.active{flex-direction:row;}
+.menu-side{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--white);}
+.cats{flex-shrink:0;display:flex;gap:5px;padding:7px 8px 6px;overflow-x:auto;scrollbar-width:none;background:var(--navy);-webkit-overflow-scrolling:touch;}
+.cats::-webkit-scrollbar{display:none;}
+.cat{background:rgba(255,255,255,.12);border:2px solid rgba(255,215,0,.3);border-radius:20px;padding:4px 11px;font-weight:800;font-size:11px;color:rgba(255,255,255,.8);cursor:pointer;white-space:nowrap;}
+.cat.on{background:var(--yellow);border-color:var(--yellow);color:var(--navy);}
+.search-wrap{flex-shrink:0;padding:6px 8px;background:var(--white);border-bottom:1px solid var(--blue-light);}
+.search-in{width:100%;background:var(--offwhite);border:2px solid var(--blue-light);border-radius:20px;padding:6px 14px 6px 32px;font-weight:700;font-size:13px;color:var(--navy);outline:none;}
+.search-in:focus{border-color:var(--yellow);}
+.items-grid{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px;display:grid;grid-template-columns:1fr 1fr;gap:5px;align-content:start;}
+.menu-item{background:var(--offwhite);border:2px solid var(--blue-light);border-radius:var(--radius-sm);padding:8px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;text-align:center;gap:2px;position:relative;user-select:none;}
+.menu-item:active{background:var(--yellow-light);border-color:var(--yellow);transform:scale(.96);}
+.mi-emoji{font-size:22px;line-height:1;}
+.mi-name{font-weight:800;font-size:10px;color:var(--navy);line-height:1.2;}
+.mi-price{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--navy-mid);}
+.mi-badge{position:absolute;top:3px;right:3px;background:var(--yellow);color:var(--navy);font-size:8px;font-weight:900;border-radius:6px;padding:1px 4px;}
+.cart-side{width:182px;flex-shrink:0;display:flex;flex-direction:column;background:var(--white);border-left:2px solid var(--blue-light);}
+.cart-hd{flex-shrink:0;background:var(--navy);color:var(--yellow);font-family:'Black Han Sans',sans-serif;font-size:15px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;}
+.clr-btn{background:rgba(255,215,0,.2);border:1px solid rgba(255,215,0,.4);border-radius:7px;color:var(--yellow);font-size:10px;font-weight:800;padding:2px 7px;cursor:pointer;}
+.cart-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:5px;display:flex;flex-direction:column;gap:4px;}
+.cart-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--gray);font-size:11px;font-weight:700;gap:4px;opacity:.7;}
+.cline{background:var(--offwhite);border:1.5px solid var(--blue-light);border-radius:8px;padding:5px 6px;display:flex;flex-direction:column;gap:2px;}
+.cline-t{display:flex;justify-content:space-between;align-items:flex-start;gap:3px;}
+.cname{font-weight:800;font-size:10px;line-height:1.2;flex:1;}
+.crm{background:none;border:none;color:var(--red);font-size:14px;cursor:pointer;padding:0;}
+.cline-b{display:flex;justify-content:space-between;align-items:center;}
+.cqty{display:flex;align-items:center;gap:3px;}
+.qb{background:var(--blue-light);border:none;border-radius:5px;width:20px;height:20px;font-size:13px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--navy);}
+.qn{font-weight:900;font-size:12px;min-width:16px;text-align:center;}
+.csub{font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--navy-mid);}
+.cart-ft{flex-shrink:0;padding:7px;border-top:2px solid var(--blue-light);}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.tlbl{font-weight:800;font-size:10px;color:var(--gray);text-transform:uppercase;}
+.tval{font-family:'Black Han Sans',sans-serif;font-size:21px;color:var(--navy);}
+.chk-btn{background:var(--yellow);color:var(--navy);border:none;border-radius:var(--radius-sm);font-family:'Black Han Sans',sans-serif;font-size:15px;padding:9px;cursor:pointer;width:100%;box-shadow:0 3px 0 var(--yellow-dark);}
+.chk-btn:disabled{background:var(--blue-light);color:var(--gray);box-shadow:none;cursor:not-allowed;}
+
+/* ── Kitchen Screen ── */
+#screen-kitchen.active{display:flex;flex-direction:column;}
+.k-topbar{flex-shrink:0;background:var(--navy);border-bottom:3px solid var(--yellow);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.k-title{font-family:'Black Han Sans',sans-serif;font-size:20px;color:var(--yellow);}
+.k-stats{font-size:11px;font-weight:800;color:rgba(255,255,255,.65);}
+
+/* Kitchen sub-tabs */
+.k-subtabs{flex-shrink:0;background:var(--navy);border-bottom:2px solid var(--yellow);display:flex;padding:0 12px 10px;}
+.k-stab{flex:1;padding:8px 6px;font-family:'Black Han Sans',sans-serif;font-size:13px;border:2px solid rgba(255,215,0,.3);border-radius:10px;cursor:pointer;color:rgba(255,255,255,.6);background:transparent;text-align:center;transition:all .15s;}
+.k-stab+.k-stab{margin-left:8px;}
+.k-stab.active{background:var(--yellow);border-color:var(--yellow);color:var(--navy);}
+
+.k-grid{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;display:flex;flex-direction:column;gap:10px;}
+@media(min-width:600px){.k-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));align-content:start;}}
+.k-empty{text-align:center;padding:60px 20px;color:var(--gray);font-weight:700;font-size:14px;}
+.kcard{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:2px solid var(--navy);}
+.kcard.kcard-done{background:#D6DCE8;border-color:#9AAABF;box-shadow:none;}
+.kcard.kcard-done .kcard-hd{background:#7A8FA8;}
+.kcard.kcard-done .kcard-num{color:#fff;}
+.kcard.kcard-done .kcard-body{color:#3D4F63;}
+.kcard.kcard-done .kcard-ft{border-top-color:#9AAABF;}
+.kcard.kcard-done .kcard-total{color:#3D4F63;}
+.kcard.kcard-done .kcard-times{border-bottom-color:#9AAABF;}
+.kcard.kcard-done .kcard-ts-label{color:#5a7085;}
+.kcard.kcard-done .kcard-ts-val{color:#2D3E50;}
+.kcard-hd{background:var(--navy);padding:10px 12px;border-radius:var(--radius) var(--radius) 0 0;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;}
+.kcard-num{font-family:'Black Han Sans',sans-serif;font-size:15px;color:var(--yellow);flex:1;min-width:0;word-break:break-word;}
+.kcard-time{font-size:10px;color:rgba(255,255,255,.6);font-weight:700;flex-shrink:0;}
+.kcard-status{font-size:11px;font-weight:900;padding:3px 10px;border-radius:12px;flex-shrink:0;}
+.kcard-status.pend{background:var(--yellow);color:var(--navy);}
+.kcard-status.done{background:var(--green);color:#fff;}
+
+/* Timestamp row inside card */
+.kcard-times{display:flex;flex-direction:column;gap:3px;padding:7px 12px 0;border-bottom:1px dashed var(--blue-light);margin-bottom:2px;}
+.kcard-ts{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:700;color:var(--gray);}
+.kcard-ts-label{min-width:52px;text-transform:uppercase;font-size:9px;letter-spacing:.3px;}
+.kcard-ts-val{color:var(--navy);font-weight:800;}
+.kcard-duration{display:inline-block;background:var(--green);color:#fff;border-radius:6px;font-size:10px;font-weight:900;padding:2px 7px;margin-left:4px;}
+.kcard-duration.slow{background:var(--yellow);color:var(--navy);}
+
+.kcard-body{padding:10px 12px;}
+.kcard-item{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;font-weight:700;border-bottom:1px dashed var(--blue-light);}
+.kcard-item:last-child{border-bottom:none;}
+.kcard-qty{color:var(--navy-mid);font-weight:900;margin-right:4px;}
+.kcard-ft{padding:8px 12px 12px;display:flex;align-items:center;justify-content:space-between;gap:6px;border-top:2px solid var(--blue-light);}
+.kcard-total{font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--navy);}
+.kcard-acts{display:flex;gap:8px;}
+.kbtn-done{background:var(--green);color:#fff;border:none;border-radius:8px;font-family:'Black Han Sans',sans-serif;font-size:13px;padding:9px 18px;cursor:pointer;}
+.kbtn-reopen{background:var(--yellow);color:var(--navy);border:none;border-radius:8px;font-family:'Black Han Sans',sans-serif;font-size:13px;padding:9px 14px;cursor:pointer;}
+.kbtn-del{background:var(--light-gray);color:var(--gray);border:none;border-radius:8px;font-weight:900;font-size:13px;padding:9px 12px;cursor:pointer;}
+
+/* ── Reports Screen ── */
+#screen-reports.active{display:flex;flex-direction:column;}
+.rpt-topbar{flex-shrink:0;background:var(--offwhite);border-bottom:2px solid var(--blue-light);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap;}
+.rpt-title{font-family:'Black Han Sans',sans-serif;font-size:19px;color:var(--navy);}
+.rpt-ctrls{display:flex;gap:5px;align-items:center;}
+.date-in{background:var(--blue-light);border:2px solid rgba(27,58,107,.2);border-radius:8px;padding:5px 7px;font-weight:800;font-size:11px;color:var(--navy);outline:none;}
+.exp-btn{background:var(--navy);color:var(--yellow);border:none;border-radius:8px;font-weight:900;font-size:10px;padding:6px 10px;cursor:pointer;}
+.email-btn{background:var(--green);color:#fff;border:none;border-radius:8px;font-weight:900;font-size:10px;padding:6px 10px;cursor:pointer;}
+.rpt-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px;display:flex;flex-direction:column;gap:6px;}
+.sum-bar{background:var(--navy);border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:12px 10px;display:flex;justify-content:space-around;}
+.si{text-align:center;}
+.snum{font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--yellow);}
+.slbl{font-size:9px;font-weight:800;color:rgba(255,255,255,.6);text-transform:uppercase;}
+.pay-bar{background:var(--navy);border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:10px 14px;display:flex;justify-content:space-around;gap:6px;border-bottom:3px solid var(--yellow);}
+.rpt-section{background:var(--white);border-radius:var(--radius-sm);border:2px solid var(--blue-light);}
+.rpt-sec-hd{background:var(--navy);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;border-radius:var(--radius-sm) var(--radius-sm) 0 0;}
+.rpt-sec-title{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--yellow);}
+.rpt-sec-arrow{font-size:11px;color:rgba(255,215,0,.7);transition:transform .2s;}
+.rpt-sec-arrow.open{transform:rotate(180deg);}
+.rpt-sec-body.collapsed{display:none;}
+.rtable{width:100%;}
+.rthd{background:var(--navy);color:#fff;display:grid;padding:6px 10px;font-size:10px;font-weight:900;}
+.rtr{display:grid;padding:6px 10px;border-bottom:1px solid var(--blue-light);font-size:11px;font-weight:700;align-items:center;}
+.rtr:last-child{border-bottom:none;}
+.rtr:nth-child(even){background:var(--offwhite);}
+.c4{grid-template-columns:1fr 45px 62px 52px;}
+.c3{grid-template-columns:1fr 52px 62px;}
+.rnk{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;font-size:9px;font-weight:900;margin-right:3px;}
+.rn1{background:var(--yellow);color:var(--navy);}
+.rn2{background:#C0C0C0;color:#fff;}
+.rn3{background:#CD7F32;color:#fff;}
+.rnn{background:var(--light-gray);color:var(--gray);}
+.bw{background:var(--blue-light);border-radius:4px;height:5px;margin-top:2px;}
+.bf{background:var(--yellow);border-radius:4px;height:5px;}
+.hchart{padding:10px;}
+.hbars{display:flex;align-items:flex-end;gap:2px;height:56px;}
+.hcol{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;}
+.hbar{border-radius:3px 3px 0 0;width:100%;min-height:2px;}
+.hlbl{font-size:7px;font-weight:800;color:var(--gray);}
+.rpt-empty{text-align:center;padding:40px 20px;color:var(--gray);font-weight:700;font-size:13px;}
+.log-sec-hd{padding:7px 10px;display:flex;align-items:center;gap:6px;}
+#screen-editor.active{display:flex;flex-direction:column;}
+.ed-topbar{flex-shrink:0;background:var(--offwhite);border-bottom:2px solid var(--blue-light);padding:8px 12px;display:flex;align-items:center;justify-content:space-between;}
+.ed-title{font-family:'Black Han Sans',sans-serif;font-size:19px;color:var(--navy);}
+.add-btn{background:var(--yellow);color:var(--navy);border:none;border-radius:8px;font-family:'Black Han Sans',sans-serif;font-size:13px;padding:8px 14px;cursor:pointer;box-shadow:0 3px 0 var(--yellow-dark);}
+.ed-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px;display:flex;flex-direction:column;gap:6px;}
+.egroup{background:var(--white);border-radius:var(--radius-sm);border:2px solid var(--blue-light);overflow:hidden;}
+.ecat-hd{background:var(--navy);padding:10px 11px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;}
+.ecat-name{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--yellow);}
+.ecat-arrow{font-size:11px;color:rgba(255,215,0,.7);transition:transform .2s;}
+.ecat-arrow.open{transform:rotate(180deg);}
+.ecat-items.collapsed{display:none;}
+.eitem{display:flex;align-items:center;padding:8px 10px;border-top:1px solid var(--blue-light);gap:6px;}
+.eemoji{font-size:18px;flex-shrink:0;}
+.einfo{flex:1;min-width:0;}
+.ename{font-weight:800;font-size:12px;color:var(--navy);}
+.eprice{font-family:'Black Han Sans',sans-serif;font-size:11px;color:var(--navy-mid);}
+.eacts{display:flex;gap:4px;flex-shrink:0;}
+.tog{border:none;border-radius:6px;font-size:10px;font-weight:900;padding:5px 7px;cursor:pointer;}
+.tog.on{background:var(--green);color:#fff;}
+.tog.off{background:var(--light-gray);color:var(--gray);}
+.edit-btn{background:var(--navy);color:var(--yellow);border:none;border-radius:6px;font-size:10px;font-weight:900;padding:5px 8px;cursor:pointer;}
+.del-btn{background:var(--red);color:#fff;border:none;border-radius:6px;font-size:10px;font-weight:900;padding:5px 7px;cursor:pointer;}
+.overlay{position:fixed;inset:0;background:rgba(18,40,80,.6);display:none;align-items:flex-end;justify-content:center;z-index:200;}
+.overlay.open{display:flex;}
+.modal{background:var(--white);border-radius:22px 22px 0 0;padding:18px 16px 30px;width:100%;max-width:480px;display:flex;flex-direction:column;gap:12px;animation:up .2s ease;max-height:90vh;overflow-y:auto;border-top:4px solid var(--yellow);-webkit-overflow-scrolling:touch;}
+@keyframes up{from{transform:translateY(60px);opacity:0}to{transform:none;opacity:1}}
+.mtitle{font-family:'Black Han Sans',sans-serif;font-size:20px;color:var(--navy);text-align:center;}
+.mtotal{font-family:'Black Han Sans',sans-serif;font-size:34px;color:var(--navy);text-align:center;}
+.flbl{font-weight:800;font-size:12px;color:var(--navy);text-transform:uppercase;letter-spacing:.4px;}
+.finput{background:var(--offwhite);border:2px solid var(--blue-light);border-radius:var(--radius-sm);padding:9px 11px;font-weight:700;font-size:14px;color:var(--navy);width:100%;outline:none;}
+.finput:focus{border-color:var(--yellow);}
+.frow{display:flex;gap:8px;}
+.fg{display:flex;flex-direction:column;gap:4px;flex:1;}
+.pay-toggle{display:flex;gap:8px;}
+.pay-btn{flex:1;padding:11px;border:2px solid var(--blue-light);border-radius:var(--radius-sm);font-family:'Black Han Sans',sans-serif;font-size:16px;cursor:pointer;background:var(--offwhite);color:var(--gray);text-align:center;}
+.pay-btn.active-cash{background:var(--navy);border-color:var(--navy);color:var(--yellow);}
+.pay-btn.active-gcash{background:#007AFF;border-color:#007AFF;color:#fff;}
+.cash-in{background:var(--offwhite);border:2px solid var(--blue-light);border-radius:var(--radius-sm);padding:10px;font-family:'Black Han Sans',sans-serif;font-size:26px;color:var(--navy);width:100%;text-align:center;outline:none;}
+.cash-in:focus{border-color:var(--yellow);}
+.chbox{background:var(--navy);border-radius:var(--radius-sm);padding:10px 12px;display:flex;justify-content:space-between;align-items:center;}
+.chlbl{font-weight:800;font-size:12px;color:rgba(255,255,255,.7);text-transform:uppercase;}
+.chval{font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--yellow);}
+.qcash{display:flex;gap:5px;flex-wrap:wrap;}
+.qcb{background:var(--blue-light);border:2px solid rgba(27,58,107,.15);border-radius:8px;padding:5px 10px;font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--navy);cursor:pointer;}
+.macts{display:flex;gap:8px;}
+.cancel-btn{flex:1;background:var(--light-gray);border:none;border-radius:var(--radius-sm);font-weight:900;font-size:13px;color:var(--gray);padding:11px;cursor:pointer;}
+.confirm-btn{flex:2;background:var(--yellow);border:none;border-radius:var(--radius-sm);font-family:'Black Han Sans',sans-serif;font-size:16px;color:var(--navy);padding:11px;cursor:pointer;box-shadow:0 3px 0 var(--yellow-dark);}
+.confirm-btn:disabled{background:var(--light-gray);color:var(--gray);box-shadow:none;cursor:not-allowed;}
+.save-btn{background:var(--navy);border:none;border-radius:var(--radius-sm);font-family:'Black Han Sans',sans-serif;font-size:16px;color:var(--yellow);padding:11px;cursor:pointer;width:100%;}
+.egrid{display:grid;grid-template-columns:repeat(8,1fr);gap:3px;}
+.eopt{font-size:20px;padding:5px;border-radius:6px;cursor:pointer;text-align:center;border:2px solid transparent;}
+.eopt.sel{border-color:var(--yellow);background:var(--yellow-light);}
+.togrow{display:flex;align-items:center;justify-content:space-between;}
+.toglbl{font-weight:800;font-size:12px;color:var(--navy);}
+.togsw{position:relative;width:42px;height:23px;}
+.togsw input{opacity:0;width:0;height:0;}
+.togsl{position:absolute;inset:0;background:var(--light-gray);border-radius:12px;cursor:pointer;transition:.2s;}
+.togsl:before{position:absolute;content:'';width:17px;height:17px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+input:checked+.togsl{background:var(--green);}
+input:checked+.togsl:before{transform:translateX(19px);}
+.action-btn{border:none;border-radius:var(--radius-sm);font-family:'Black Han Sans',sans-serif;font-size:14px;padding:11px;cursor:pointer;width:100%;}
+.action-btn.green{background:var(--green);color:#fff;}
+.action-btn.blue{background:var(--navy-mid);color:#fff;}
+.settings-lbl{font-weight:800;font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;}
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--yellow);font-weight:900;font-size:12px;padding:8px 16px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:500;white-space:nowrap;border:2px solid var(--yellow);}
+.toast.show{opacity:1;}
+/* PIN Modal */
+.pin-dots{display:flex;justify-content:center;gap:12px;margin:8px 0;}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:var(--blue-light);border:2px solid var(--navy);transition:background .15s;}
+.pin-dot.filled{background:var(--navy);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.pin-key{background:var(--offwhite);border:2px solid var(--blue-light);border-radius:var(--radius-sm);font-family:'Black Han Sans',sans-serif;font-size:22px;color:var(--navy);padding:14px;cursor:pointer;text-align:center;}
+.pin-key:active{background:var(--yellow-light);border-color:var(--yellow);}
+.pin-key.del{font-size:16px;color:var(--red);}
+.pin-key.empty{background:transparent;border-color:transparent;cursor:default;}
+/* Live wait timer */
+.kcard-wait{display:inline-block;border-radius:6px;font-size:11px;font-weight:900;padding:2px 8px;margin-left:6px;}
+.kcard-wait.ok{background:#E8F8EE;color:#16A34A;}
+.kcard-wait.warn{background:#FFF9C4;color:#92400E;}
+.kcard-wait.late{background:#FFE4E4;color:#DC2626;animation:pulse .8s infinite alternate;}
+@keyframes pulse{from{opacity:1}to{opacity:.6}}
+</style>
+</head>
+<body>
+<div class="topnav"><div class="topnav-inner">
+  <div class="logo">sn<span>ow</span>ee</div>
+  <div class="tabs">
+    <button class="tab active" onclick="showScreen('pos')">Order</button>
+    <button class="tab" onclick="showScreen('kitchen')">Kitchen<span class="badge" id="kbadge" style="display:none">0</span></button>
+    <button class="tab" onclick="showScreen('reports')">Reports</button>
+    <button class="tab" onclick="requirePIN('editor')">Menu</button>
+  </div>
+  <div class="dot" id="cdot"></div>
+</div></div>
+<div class="screen-wrap"><div class="screen-cell">
+<div class="screen active" id="screen-pos">
+  <div class="menu-side">
+    <div class="cats" id="cats"></div>
+    <div class="search-wrap"><input class="search-in" id="search-in" type="text" placeholder="Search items..." oninput="onSearch()"></div>
+    <div class="items-grid" id="items-grid"></div>
+  </div>
+  <div class="cart-side">
+    <div class="cart-hd">🛒 Order<button class="clr-btn" onclick="clearCart()">Clear</button></div>
+    <div class="cart-body" id="cart-body"><div class="cart-empty">🧇<br>Tap to add</div></div>
+    <div class="cart-ft">
+      <div class="total-row"><span class="tlbl">Total</span><span class="tval" id="cart-total">₱0</span></div>
+      <button class="chk-btn" id="chk-btn" onclick="openCheckout()" disabled>Checkout →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Kitchen Screen -->
+<div class="screen" id="screen-kitchen">
+  <div class="k-topbar"><div class="k-title">🍳 Kitchen</div><div class="k-stats" id="k-stats"></div></div>
+  <div class="k-subtabs">
+    <button class="k-stab active" id="kstab-pending" onclick="setKTab('pending')">⏳ Pending<span class="badge" id="kbadge2" style="display:none;margin-left:4px">0</span></button>
+    <button class="k-stab" id="kstab-completed" onclick="setKTab('completed')">✓ Completed</button>
+  </div>
+  <div class="k-grid" id="klist"></div>
+</div>
+
+<div class="screen" id="screen-reports">
+  <div class="rpt-topbar">
+    <div class="rpt-title">📊 Reports</div>
+    <div class="rpt-ctrls">
+      <input class="date-in" type="date" id="rpt-date" onchange="setRptDate(this.value)">
+      <button class="exp-btn" onclick="exportCSV()">⬇ CSV</button>
+      <button class="email-btn" onclick="requirePIN('settings')">✉ Email</button>
+      <button class="exp-btn" style="background:#FF9500;" onclick="resyncDate()">☁️ Resync</button>
+    </div>
+  </div>
+  <div class="rpt-list" id="rpt-body"></div>
+</div>
+<div class="screen" id="screen-editor">
+  <div class="ed-topbar"><div class="ed-title">✏️ Menu</div><button class="add-btn" onclick="openItemModal(null)">+ Add</button></div>
+  <div class="ed-list" id="ed-body"></div>
+</div>
+</div></div>
+
+<!-- Checkout Modal -->
+<div class="overlay" id="mod-checkout"><div class="modal">
+  <div class="mtitle">💳 Checkout</div>
+  <div class="mtotal" id="mtotal">₱0</div>
+  <div class="fg">
+    <div class="flbl">Customer Name <span style="font-weight:600;font-size:10px;color:var(--gray)">(optional)</span></div>
+    <input class="finput" id="cust-name" type="text" placeholder="e.g. Maria, Table 3..." autocomplete="off">
+  </div>
+  <div class="fg">
+    <div class="flbl">Payment Method</div>
+    <div class="pay-toggle">
+      <button class="pay-btn active-cash" id="pay-cash-btn" onclick="setPayMethod('cash')">💵 Cash</button>
+      <button class="pay-btn" id="pay-gcash-btn" onclick="setPayMethod('gcash')">📱 GCash</button>
+    </div>
+  </div>
+  <div id="cash-section">
+    <div class="fg">
+      <div class="flbl">Cash Received</div>
+      <input class="cash-in" id="cash-in" type="number" placeholder="0" min="0" step="1" oninput="calcChange()">
+    </div>
+    <div class="qcash" id="qcash"></div>
+    <div class="chbox"><span class="chlbl">Change</span><span class="chval" id="chval">—</span></div>
+  </div>
+  <div id="gcash-section" style="display:none;">
+    <div style="background:#E8F4FF;border:2px solid #007AFF;border-radius:var(--radius-sm);padding:14px;text-align:center;">
+      <div style="font-family:'Black Han Sans',sans-serif;font-size:14px;color:#007AFF;margin-bottom:4px;">📱 GCash Payment</div>
+      <div style="font-size:12px;font-weight:700;color:var(--gray)">Amount to collect</div>
+      <div style="font-family:'Black Han Sans',sans-serif;font-size:28px;color:#007AFF;" id="gcash-amount">₱0</div>
+    </div>
+    <div class="fg" style="margin-top:10px;">
+      <div class="flbl">GCash Reference No. <span style="font-weight:800;font-size:10px;color:var(--red)">*required</span></div>
+      <input class="finput" id="gcash-ref" type="text" placeholder="e.g. 1234567890" autocomplete="off" style="letter-spacing:1px;font-size:16px;">
+    </div>
+  </div>
+  <div class="macts">
+    <button class="cancel-btn" onclick="closeModal('mod-checkout')">Cancel</button>
+    <button class="confirm-btn" id="cfm-btn" onclick="confirmOrder()" disabled>✓ Confirm</button>
+  </div>
+</div></div>
+
+<!-- Item Modal -->
+<div class="overlay" id="mod-item"><div class="modal">
+  <div class="mtitle" id="item-modal-title">➕ New Item</div>
+  <div class="fg"><div class="flbl">Emoji</div><div class="egrid" id="egrid"></div></div>
+  <div class="fg"><div class="flbl">Name</div><input class="finput" id="f-name" placeholder="e.g. Banana Chocolate"></div>
+  <div class="frow">
+    <div class="fg"><div class="flbl">Price (₱)</div><input class="finput" id="f-price" type="number" placeholder="0" step="1" min="0"></div>
+    <div class="fg"><div class="flbl">Category</div><input class="finput" id="f-cat" placeholder="e.g. Waffles" list="catlist"><datalist id="catlist"></datalist></div>
+  </div>
+  <div class="fg"><div class="flbl">Badge (optional)</div><input class="finput" id="f-badge" placeholder="e.g. NEW"></div>
+  <div class="togrow"><div class="toglbl">Available</div><label class="togsw"><input type="checkbox" id="f-avail" checked><span class="togsl"></span></label></div>
+  <div class="macts">
+    <button class="cancel-btn" onclick="closeModal('mod-item')">Cancel</button>
+    <button class="save-btn" onclick="saveItem()">💾 Save</button>
+  </div>
+</div></div>
+
+<!-- Settings Modal -->
+<div class="overlay" id="mod-email"><div class="modal">
+  <div class="mtitle">⚙️ Settings</div>
+  <div class="settings-lbl">📧 Email Report (EmailJS)</div>
+  <div class="fg"><div class="flbl">Your Email</div><input class="finput" id="email-addr" type="email" placeholder="yourname@gmail.com"></div>
+  <div class="fg"><div class="flbl">Report Date</div><input class="finput" id="email-date" type="date"></div>
+  <div class="fg"><div class="flbl">EmailJS Service ID</div><input class="finput" id="ejs-service" placeholder="service_xxx"></div>
+  <div class="fg"><div class="flbl">EmailJS Template ID</div><input class="finput" id="ejs-template" placeholder="template_xxx"></div>
+  <div class="fg"><div class="flbl">EmailJS Public Key</div><input class="finput" id="ejs-pubkey" placeholder="public_key"></div>
+  <div style="height:1px;background:var(--blue-light)"></div>
+  <div class="settings-lbl">🔒 Security</div>
+  <div class="fg"><div class="flbl">Change PIN <span style="font-weight:600;font-size:10px;color:var(--gray)">(default: 1234)</span></div>
+  <div class="frow">
+    <input class="finput" id="new-pin" type="password" maxlength="4" placeholder="New 4-digit PIN" inputmode="numeric">
+    <button class="save-btn" style="width:auto;padding:9px 14px;font-size:12px;" onclick="changePIN()">Set</button>
+  </div></div>
+  <button class="action-btn" style="background:#E63946;color:#fff;" onclick="factoryReset()">🏭 Factory Reset</button>
+  <div class="fg"><div class="flbl">Google Script URL</div><input class="finput" id="gsheet-url" placeholder="https://script.google.com/..."></div>
+  <button class="save-btn" onclick="saveSettings()">💾 Save Settings</button>
+  <button class="action-btn green" onclick="sendEmailReport()">📤 Send Email Report</button>
+  <button class="action-btn blue" onclick="syncToSheets()">☁️ Sync to Google Sheets</button>
+  <div style="height:1px;background:var(--blue-light)"></div>
+  <div style="text-align:center;padding:6px 0 2px;">
+    <div style="font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--navy)">🧇 snowee POS</div>
+    <div style="font-size:9px;font-weight:700;color:var(--gray);margin-top:3px;">Version 3.0 · Built for Snowee PH</div>
+    <div style="font-size:9px;font-weight:700;color:var(--gray);margin-top:1px;">Offline-first · Single HTML file · No install needed</div>
+    <div style="font-size:9px;font-weight:700;color:var(--gray);margin-top:1px;">IndexedDB · EmailJS · Google Sheets</div>
+    <div style="font-size:9px;font-weight:600;color:var(--gray);margin-top:4px;opacity:.6;">Auto-email daily at 7:30 PM · Auto-sync on every order</div>
+  </div>
+  <button class="cancel-btn" onclick="closeModal('mod-email')">Close</button>
+</div></div>
+
+<div class="overlay" id="mod-pin"><div class="modal">
+  <div class="mtitle" id="pin-title">🔒 Enter PIN</div>
+  <div class="pin-dots" id="pin-dots">
+    <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+    <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+  </div>
+  <div style="text-align:center;font-size:11px;font-weight:700;color:var(--red);min-height:16px;" id="pin-err"></div>
+  <div class="pin-pad">
+    <button class="pin-key" onclick="pinKey('1')">1</button>
+    <button class="pin-key" onclick="pinKey('2')">2</button>
+    <button class="pin-key" onclick="pinKey('3')">3</button>
+    <button class="pin-key" onclick="pinKey('4')">4</button>
+    <button class="pin-key" onclick="pinKey('5')">5</button>
+    <button class="pin-key" onclick="pinKey('6')">6</button>
+    <button class="pin-key" onclick="pinKey('7')">7</button>
+    <button class="pin-key" onclick="pinKey('8')">8</button>
+    <button class="pin-key" onclick="pinKey('9')">9</button>
+    <button class="pin-key empty"></button>
+    <button class="pin-key" onclick="pinKey('0')">0</button>
+    <button class="pin-key del" onclick="pinDel()">⌫</button>
+  </div>
+  <button class="cancel-btn" onclick="closeModal('mod-pin')">Cancel</button>
+</div></div>
+<div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+let db;
+const openDB=()=>new Promise((res,rej)=>{const r=indexedDB.open('SnoweeV4',1);r.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('menu'))d.createObjectStore('menu',{keyPath:'id',autoIncrement:true});if(!d.objectStoreNames.contains('orders'))d.createObjectStore('orders',{keyPath:'id',autoIncrement:true});if(!d.objectStoreNames.contains('settings'))d.createObjectStore('settings',{keyPath:'key'});};r.onsuccess=e=>{db=e.target.result;res();};r.onerror=()=>rej(r.error);});
+const dbAll=s=>new Promise((res,rej)=>{const r=db.transaction(s).objectStore(s).getAll();r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
+const dbPut=(s,o)=>new Promise((res,rej)=>{const r=db.transaction(s,'readwrite').objectStore(s).put(o);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
+const dbDel=(s,k)=>new Promise((res,rej)=>{const r=db.transaction(s,'readwrite').objectStore(s).delete(k);r.onsuccess=()=>res();r.onerror=()=>rej(r.error);});
+const dbGet=(s,k)=>new Promise((res,rej)=>{const r=db.transaction(s).objectStore(s).get(k);r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);});
+const SEED=[{cat:'Plain Waffles',emoji:'🧇',name:'Chocolate',price:55,badge:'',available:true},{cat:'Plain Waffles',emoji:'🧇',name:'Biscoff',price:70,badge:'',available:true},{cat:'Plain Waffles',emoji:'🧇',name:'Matcha',price:70,badge:'',available:true},{cat:'Plain Waffles',emoji:'🧇',name:'White Choco',price:65,badge:'',available:true},{cat:'Plain Waffles',emoji:'🧇',name:'Cream Cheese',price:70,badge:'',available:true},{cat:'Cream Cheese Combo',emoji:'🧇',name:'Mango Cream Cheese',price:90,badge:'',available:true},{cat:'Cream Cheese Combo',emoji:'🧇',name:'Blueberry Cream Cheese',price:95,badge:'',available:true},{cat:'Cream Cheese Combo',emoji:'🧇',name:'Strawberry Cream Cheese',price:90,badge:'',available:true},{cat:'Cream Cheese Combo',emoji:'🧇',name:'Banana Cream Cheese',price:90,badge:'',available:true},{cat:'Banana Combo',emoji:'🍌',name:'Banana Chocolate',price:75,badge:'',available:true},{cat:'Banana Combo',emoji:'🍌',name:'Banana White Choco',price:80,badge:'',available:true},{cat:'Banana Combo',emoji:'🍌',name:'Banana Matcha',price:90,badge:'',available:true},{cat:'Banana Combo',emoji:'🍌',name:'Banana Biscoff',price:90,badge:'',available:true},{cat:'Savory Combo',emoji:'🥚',name:'Ham & Cheese',price:90,badge:'',available:true},{cat:'Savory Combo',emoji:'🥚',name:'Ham & Egg & Cheese',price:110,badge:'',available:true},{cat:'Savory Combo',emoji:'🐟',name:'Tuna & Cheese',price:90,badge:'',available:true},{cat:'Savory Combo',emoji:'🐟',name:'Tuna & Egg & Cheese',price:110,badge:'',available:true},{cat:'Savory Combo',emoji:'🥩',name:'Corned Beef & Cheese',price:110,badge:'',available:true},{cat:'Savory Combo',emoji:'🥚',name:'Egg & Cheese',price:85,badge:'',available:true},{cat:'Ice Cream Swirl',emoji:'🍦',name:'Banana Choco Swirl',price:79,badge:'',available:true},{cat:'Ice Cream Swirl',emoji:'🍦',name:'Mango Choco Swirl',price:79,badge:'',available:true},{cat:'Ice Cream Swirl',emoji:'🍦',name:'Strawberry Choco Swirl',price:79,badge:'',available:true},{cat:'Ice Cream Swirl',emoji:'🍦',name:'Blueberry Choco Swirl',price:79,badge:'',available:true},{cat:'Milkshakes',emoji:'🥤',name:'Choco Swirl Shake',price:99,badge:'',available:true},{cat:'Milkshakes',emoji:'🥤',name:'Matcha Swirl Shake',price:99,badge:'',available:true},{cat:'Milkshakes',emoji:'🥤',name:'Mango Swirl Shake',price:99,badge:'',available:true},{cat:'Milkshakes',emoji:'🥤',name:'Strawberry Swirl Shake',price:99,badge:'',available:true},{cat:'Milkshakes',emoji:'🥛',name:'Salted Cream Choco',price:110,badge:'',available:true},{cat:'Milkshakes',emoji:'🥛',name:'Salted Cream Matcha',price:110,badge:'',available:true},{cat:'Milkshakes',emoji:'🥛',name:'Salted Cream Mango',price:110,badge:'',available:true},{cat:'Milkshakes',emoji:'🥛',name:'Salted Cream Strawberry',price:110,badge:'',available:true},{cat:'Coffee',emoji:'☕',name:'Brewed Coffee',price:55,badge:'',available:true}];
+const EMOJIS=['🧇','🍦','🍨','🍧','🥤','☕','🧋','🎁','🍰','🍩','🍪','🍫','🥐','🥞','🍓','🍌','🍒','🫐','🥝','🥚','🐟','🥩','🥛','🧃','🫖','🍵','🧊','🧁','🍮','🍡'];
+const CI=c=>({'Plain Waffles':'🧇','Cream Cheese Combo':'🧇','Banana Combo':'🍌','Savory Combo':'🥚','Ice Cream Swirl':'🍦','Milkshakes':'🥤','Coffee':'☕'}[c]||'🍽');
+const fmt=n=>Number(n).toLocaleString('en-PH');
+const fmtTime=d=>new Date(d).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+const fmtTimeS=d=>new Date(d).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+// Format duration in seconds to "Xm Ys"
+function fmtDuration(secs){
+  if(!secs||secs<0)return'—';
+  const m=Math.floor(secs/60),s=Math.round(secs%60);
+  if(m===0)return s+'s';
+  return m+'m '+(s>0?s+'s':'');
+}
+
+// Calculate duration in seconds between two ISO strings
+function calcDuration(startIso,endIso){
+  if(!startIso||!endIso)return null;
+  return (new Date(endIso)-new Date(startIso))/1000;
+}
+
+let menu=[],cart=[],orders=[],curCat='All',editId=null,selEmoji='🧇',settings={};
+let collapsedCats=new Set(),collapsedSections=new Set();
+let rptDate=new Date().toISOString().split('T')[0];
+let payMethod='cash';
+let kTab='pending'; // 'pending' or 'completed'
+
+async function init(){
+  await openDB();
+  menu=await dbAll('menu');
+  if(!menu.length){for(const s of SEED)await dbPut('menu',s);menu=await dbAll('menu');}
+  orders=await dbAll('orders');
+  await loadPIN();
+  for(const k of ['ejsService','ejsTemplate','ejsPublicKey','gsheetUrl','reportEmail']){const r=await dbGet('settings',k);if(r)settings[k]=r.value;}
+  // Restore from localStorage backup if settings are missing
+  if(!settings.gsheetUrl&&!settings.ejsService){
+    try{
+      const backup=localStorage.getItem('snowee_settings');
+      if(backup){
+        const s=JSON.parse(backup);
+        settings={...settings,...s};
+        // Restore to IndexedDB
+        for(const[k,v]of Object.entries(settings))if(v)await dbPut('settings',{key:k,value:v});
+        toast('⚙️ Settings restored!');
+      }
+    }catch(e){}
+  }
+  document.getElementById('rpt-date').value=rptDate;
+  updateConn();renderCats();renderMenu();renderCart();updateBadge();
+  // Auto-sync any unsynced orders from previous sessions
+  setTimeout(()=>autoSyncAll(false),2000);
+  // Start auto-email scheduler
+  scheduleAutoEmail();
+}
+function updateConn(){const d=document.getElementById('cdot');navigator.onLine?d.classList.remove('off'):d.classList.add('off');}
+
+function showScreen(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('screen-'+n).classList.add('active');
+  document.querySelectorAll('.tab')[{pos:0,kitchen:1,reports:2,editor:3}[n]].classList.add('active');
+  if(n!=='kitchen')stopKitchenTimer();
+  if(n==='kitchen')renderKitchen();
+  if(n==='reports'){renderReports();setTimeout(()=>autoSyncAll(false),800);}
+  if(n==='editor')renderEditor();
+}
+function catList(){return['All',...new Set(menu.map(i=>i.cat))];}
+function renderCats(){document.getElementById('cats').innerHTML=catList().map(c=>`<button class="cat ${c===curCat?'on':''}" onclick="selCat('${c.replace(/'/g,"&#39;")}')">${CI(c)} ${c}</button>`).join('');}
+function selCat(c){curCat=c;const s=document.getElementById('search-in');if(s)s.value='';renderCats();renderMenu();}
+function onSearch(){const q=document.getElementById('search-in').value.trim();if(q){curCat='All';renderCats();}renderMenu();}
+function renderMenu(){
+  const q=(document.getElementById('search-in')?.value||'').toLowerCase().trim();
+  const vis=menu.filter(i=>{if(i.available===false)return false;if(curCat!=='All'&&i.cat!==curCat)return false;if(q&&!i.name.toLowerCase().includes(q)&&!i.cat.toLowerCase().includes(q))return false;return true;});
+  if(!vis.length){document.getElementById('items-grid').innerHTML='<div style="text-align:center;padding:20px;color:var(--gray);font-weight:700;font-size:12px">No items</div>';return;}
+  const grouped={};
+  vis.forEach(i=>{if(!grouped[i.cat])grouped[i.cat]=[];grouped[i.cat].push(i);});
+  let html='';
+  if(q||curCat!=='All'){
+    vis.forEach(i=>{
+      const cc=getCatColor(i.cat);const c=CAT_HEX[cc]||'#6B7A99';
+      html+=`<div class="menu-item" style="border-left:5px solid ${c};background:#fff;" onclick="addItem(${i.id})"><div class="mi-info"><div class="mi-name">${i.name}${i.badge?` <span class="mi-badge">${i.badge}</span>`:''}</div></div><div class="mi-price">&#x20B1;${fmt(i.price)}</div></div>`;
+    });
+  } else {
+    Object.entries(grouped).forEach(([cat,items])=>{
+      const cc=getCatColor(cat);const c=CAT_HEX[cc]||'#6B7A99';
+      html+=`<div style="border-left:5px solid ${c};padding:6px 10px 4px;background:#f8f9ff;"><span style="font-family:'Black Han Sans',sans-serif;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:${c};">${cat}</span></div>`;
+      items.forEach(i=>{
+        html+=`<div class="menu-item" style="border-left:5px solid ${c};background:#fff;" onclick="addItem(${i.id})"><div class="mi-info"><div class="mi-name">${i.name}${i.badge?` <span class="mi-badge">${i.badge}</span>`:''}</div></div><div class="mi-price">&#x20B1;${fmt(i.price)}</div></div>`;
+      });
+    });
+  }
+  document.getElementById('items-grid').innerHTML=html;
+}
+function addItem(id){const item=menu.find(i=>i.id===id);if(!item)return;const ex=cart.find(c=>c.id===id);if(ex)ex.qty++;else cart.push({id:item.id,name:item.name,emoji:item.emoji,price:item.price,qty:1,cat:item.cat});renderCart();}
+function removeFromCart(id){cart=cart.filter(c=>c.id!==id);renderCart();}
+function changeQty(id,d){const it=cart.find(c=>c.id===id);if(!it)return;it.qty+=d;if(it.qty<=0)cart=cart.filter(c=>c.id!==id);renderCart();}
+function clearCart(){cart=[];renderCart();}
+function cartTotal(){return cart.reduce((s,c)=>s+c.price*c.qty,0);}
+function renderCart(){
+  const total=cartTotal();
+  document.getElementById('cart-total').textContent='₱'+fmt(total);
+  document.getElementById('chk-btn').disabled=!cart.length;
+  const el=document.getElementById('cart-body');
+  if(!cart.length){el.innerHTML='<div class="cart-empty">🧇<br>Tap to add</div>';return;}
+  el.innerHTML=cart.map(i=>`<div class="cline"><div class="cline-t"><div class="cname">${i.emoji} ${i.name}</div><button class="crm" onclick="removeFromCart(${i.id})">×</button></div><div class="cline-b"><div class="cqty"><button class="qb" onclick="changeQty(${i.id},-1)">−</button><span class="qn">${i.qty}</span><button class="qb" onclick="changeQty(${i.id},1)">+</button></div><div class="csub">₱${fmt(i.price*i.qty)}</div></div></div>`).join('');
+}
+function setPayMethod(m){
+  payMethod=m;
+  const cb=document.getElementById('pay-cash-btn'),gb=document.getElementById('pay-gcash-btn');
+  const cs=document.getElementById('cash-section'),gs=document.getElementById('gcash-section');
+  const cfm=document.getElementById('cfm-btn');
+  if(m==='cash'){cb.className='pay-btn active-cash';gb.className='pay-btn';cs.style.display='';gs.style.display='none';cfm.disabled=true;calcChange();}
+  else{cb.className='pay-btn';gb.className='pay-btn active-gcash';cs.style.display='none';gs.style.display='';document.getElementById('gcash-amount').textContent='₱'+fmt(cartTotal());cfm.disabled=false;}
+}
+function openCheckout(){
+  const t=cartTotal();
+  document.getElementById('mtotal').textContent='₱'+fmt(t);
+  document.getElementById('cash-in').value='';document.getElementById('cust-name').value='';document.getElementById('gcash-ref').value='';
+  document.getElementById('gcash-amount').textContent='₱'+fmt(t);document.getElementById('chval').textContent='—';
+  payMethod='cash';
+  document.getElementById('pay-cash-btn').className='pay-btn active-cash';
+  document.getElementById('pay-gcash-btn').className='pay-btn';
+  document.getElementById('cash-section').style.display='';
+  document.getElementById('gcash-section').style.display='none';
+  document.getElementById('cfm-btn').disabled=true;
+  const rounds=[...new Set([t,Math.ceil(t/20)*20,Math.ceil(t/50)*50,Math.ceil(t/100)*100])].filter(v=>v>=t).slice(0,4);
+  document.getElementById('qcash').innerHTML=rounds.map(v=>`<button class="qcb" onclick="setCash(${v})">₱${fmt(v)}</button>`).join('');
+  document.getElementById('mod-checkout').classList.add('open');
+  setTimeout(()=>document.getElementById('cash-in').focus(),300);
+}
+function setCash(v){document.getElementById('cash-in').value=v;calcChange();}
+function calcChange(){
+  const t=cartTotal(),cash=parseFloat(document.getElementById('cash-in').value)||0,ch=cash-t;
+  const el=document.getElementById('chval'),btn=document.getElementById('cfm-btn');
+  if(cash>=t){el.textContent='₱'+fmt(ch.toFixed(0));el.style.color='var(--yellow)';btn.disabled=false;}
+  else{el.textContent=cash>0?'-₱'+fmt(Math.abs(ch).toFixed(0)):'—';el.style.color='#ff6b6b';btn.disabled=true;}
+}
+async function confirmOrder(){
+  const t=cartTotal(),custName=document.getElementById('cust-name').value.trim();
+  const isGcash=payMethod==='gcash';
+  const cash=isGcash?0:(parseFloat(document.getElementById('cash-in').value)||0);
+  const gcashRef=isGcash?document.getElementById('gcash-ref').value.trim():'';
+  if(isGcash&&!gcashRef){toast('⚠️ GCash reference number is required');document.getElementById('gcash-ref').focus();return;}
+  const now=new Date(),todayStr=now.toISOString().split('T')[0];
+  const qNum=await getNextQNum();
+  const order={items:cart.map(i=>({...i})),total:t,cash,change:isGcash?0:(cash-t),payMethod:isGcash?'gcash':'cash',gcashRef,date:todayStr,time:now.toISOString(),timeCreated:now.toISOString(),timeDone:null,hour:now.getHours(),qNum,custName,paid:true,done:false,archived:false};
+  const id=await dbPut('orders',order);order.id=id;orders.push(order);
+  cart=[];renderCart();closeModal('mod-checkout');updateBadge();
+  toast('✅ Queue #'+qNum+(custName?' · '+custName:'')+(isGcash?' · 📱':'')+' placed!');
+  // Auto-sync silently in background
+  if(settings.gsheetUrl&&navigator.onLine)setTimeout(()=>syncOrderToSheets(order),500);
+}
+
+/* ── Kitchen Tab Logic ── */
+function setKTab(tab){
+  kTab=tab;
+  document.getElementById('kstab-pending').classList.toggle('active',tab==='pending');
+  document.getElementById('kstab-completed').classList.toggle('active',tab==='completed');
+  stopKitchenTimer();
+  renderKitchen();
+}
+
+function buildKCard(o){
+  const createdStr=o.timeCreated?fmtTimeS(o.timeCreated):(o.time?fmtTimeS(o.time):'—');
+  const doneStr=o.timeDone?fmtTimeS(o.timeDone):'—';
+  const durSecs=o.timeDone?(calcDuration(o.timeCreated||o.time,o.timeDone)):null;
+  const durStr=durSecs!==null?fmtDuration(durSecs):'—';
+  // >10 min = slow (yellow), else fast (green)
+  const durClass=durSecs!==null&&durSecs>600?'slow':'';
+
+  const timesHtml=`<div class="kcard-times">
+    <div class="kcard-ts">
+      <span class="kcard-ts-label">🕐 Created</span>
+      <span class="kcard-ts-val">${createdStr}</span>
+      ${!o.done?`<span class="kcard-wait ok" data-created="${new Date(o.timeCreated||o.time).getTime()}">⏱ 0s</span>`:''}
+    </div>
+    ${o.done?`<div class="kcard-ts"><span class="kcard-ts-label">✅ Done</span><span class="kcard-ts-val">${doneStr}</span>${durSecs!==null?`<span class="kcard-duration ${durClass}">⏱ ${durStr}</span>`:''}</div>`:''}
+  </div>`;
+
+  const actionsHtml=o.done
+    ?`<button class="kbtn-reopen" data-action="reopen" data-id="${o.id}">↩ Reopen</button>`
+    :`<button class="kbtn-done" data-action="done" data-id="${o.id}">✓ Done</button>`;
+
+  return `<div class="kcard ${o.done?'kcard-done':''}">
+    <div class="kcard-hd">
+      <span class="kcard-num">#${String(o.qNum||o.id).padStart(3,'0')}${o.custName?' · '+o.custName:''}${o.gcashRef?' 📱'+o.gcashRef:''}</span>
+      <span class="kcard-status ${o.done?'done':'pend'}">${o.done?'✓ Done':'⏳ Pending'}</span>
+    </div>
+    ${timesHtml}
+    <div class="kcard-body">${o.items.map(i=>`<div class="kcard-item"><span><span class="kcard-qty">${i.qty}×</span>${i.emoji} ${i.name}</span><span>₱${fmt(i.price*i.qty)}</span></div>`).join('')}</div>
+    <div class="kcard-ft">
+      <span class="kcard-total">₱${fmt(o.total)}</span>
+      <div class="kcard-acts">${actionsHtml}<button class="kbtn-del" data-action="del" data-id="${o.id}">✕</button></div>
+    </div>
+  </div>`;
+}
+
+async function renderKitchen(){
+  orders=await dbAll('orders');updateBadge();
+  const el=document.getElementById('klist');
+  const visible=orders.filter(o=>!o.archived);
+  const pending=visible.filter(o=>!o.done);
+  const done=visible.filter(o=>o.done);
+
+  // Update stats
+  document.getElementById('k-stats').textContent=pending.length+' pending · '+done.length+' done';
+
+  // Update sub-tab badges
+  const b2=document.getElementById('kbadge2');
+  b2.style.display=pending.length?'inline-flex':'none';
+  b2.textContent=pending.length;
+
+  if(kTab==='pending'){
+    if(!pending.length){
+      el.innerHTML='<div class="k-empty"><span style="font-size:40px">✅</span><br>All orders done!</div>';
+      return;
+    }
+    // Show newest pending first
+    el.innerHTML=[...pending].reverse().map(buildKCard).join('');
+  } else {
+    // Completed: last 10 only, newest first
+    const show=[...done].reverse().slice(0,10);
+    if(!show.length){
+      el.innerHTML='<div class="k-empty"><span style="font-size:40px">🍳</span><br>No completed orders yet</div>';
+      return;
+    }
+    el.innerHTML=show.map(buildKCard).join('');
+  }
+  // Start live timer only on pending tab
+  if(kTab==='pending')startKitchenTimer();
+  else stopKitchenTimer();
+}
+
+document.getElementById('klist').addEventListener('click',async function(e){
+  const btn=e.target.closest('[data-action]');if(!btn)return;
+  const id=parseInt(btn.dataset.id,10),action=btn.dataset.action;
+  if(action==='done'){
+    const o=orders.find(o=>o.id===id);if(!o)return;
+    o.done=true;
+    o.timeDone=new Date().toISOString();
+    if(!o.timeCreated)o.timeCreated=o.time;
+    o.synced=false; // mark for re-sync so timeDone gets recorded
+    await dbPut('orders',o);await renderKitchen();
+    const dur=calcDuration(o.timeCreated,o.timeDone);
+    toast('✅ Queue #'+(o.qNum||id)+' done! ⏱ '+fmtDuration(dur));
+    if(settings.gsheetUrl&&navigator.onLine)setTimeout(()=>syncOrderToSheets(o),500);
+  } else if(action==='reopen'){
+    const o=orders.find(o=>o.id===id);if(!o)return;
+    o.done=false;o.timeDone=null;
+    await dbPut('orders',o);await renderKitchen();toast('↩ Queue #'+(o.qNum||id)+' reopened');
+  } else if(action==='del'){
+    const o=orders.find(o=>o.id===id);if(!o)return;
+    o.archived=true;await dbPut('orders',o);await renderKitchen();
+  }
+});
+
+function updateBadge(){
+  const n=orders.filter(o=>!o.done&&!o.archived).length;
+  const b=document.getElementById('kbadge');
+  b.style.display=n?'inline-flex':'none';b.textContent=n;
+}
+
+/* ── Reports ── */
+function setRptDate(v){rptDate=v;renderReports();}
+function makeSection(id,title,content){const isOpen=!collapsedSections.has(id);return `<div class="rpt-section"><div class="rpt-sec-hd" onclick="toggleSection('${id}')"><span class="rpt-sec-title">${title}</span><span class="rpt-sec-arrow ${isOpen?'open':''}">▼</span></div><div class="rpt-sec-body ${isOpen?'':'collapsed'}">${content}</div></div>`;}
+function toggleSection(id){if(collapsedSections.has(id))collapsedSections.delete(id);else collapsedSections.add(id);renderReports();}
+
+async function renderReports(){
+  const all=await dbAll('orders');
+  const day=all.filter(o=>o.date===rptDate&&o.paid!==false);
+  const revenue=day.reduce((s,o)=>s+o.total,0);
+  const avg=day.length?(revenue/day.length).toFixed(0):0;
+  const itemsSold=day.reduce((s,o)=>s+o.items.reduce((a,i)=>a+i.qty,0),0);
+  const cashO=day.filter(o=>o.payMethod!=='gcash'),gcashO=day.filter(o=>o.payMethod==='gcash');
+  const cashRev=cashO.reduce((s,o)=>s+o.total,0),gcashRev=gcashO.reduce((s,o)=>s+o.total,0);
+
+  // Average transaction time (only completed orders with both timestamps)
+  const timedOrders=day.filter(o=>o.done&&o.timeCreated&&o.timeDone);
+  const avgTimeSecs=timedOrders.length
+    ?timedOrders.reduce((s,o)=>s+calcDuration(o.timeCreated,o.timeDone),0)/timedOrders.length
+    :null;
+  const avgTimeStr=avgTimeSecs!==null?fmtDuration(avgTimeSecs):'—';
+
+  const imap={};day.forEach(o=>o.items.forEach(i=>{if(!imap[i.name])imap[i.name]={name:i.name,emoji:i.emoji,cat:i.cat||'',qty:0,rev:0};imap[i.name].qty+=i.qty;imap[i.name].rev+=i.price*i.qty;}));
+  const ilist=Object.values(imap).sort((a,b)=>b.qty-a.qty),maxQ=ilist.length?ilist[0].qty:1;
+  const hmap={};for(let h=6;h<=22;h++)hmap[h]={rev:0};
+  day.forEach(o=>{const h=o.hour??new Date(o.time).getHours();if(hmap[h])hmap[h].rev+=o.total;});
+  const maxH=Math.max(...Object.values(hmap).map(h=>h.rev),1);
+  const cmap={};day.forEach(o=>o.items.forEach(i=>{const c=i.cat||'Other';if(!cmap[c])cmap[c]={qty:0,rev:0};cmap[c].qty+=i.qty;cmap[c].rev+=i.price*i.qty;}));
+  const clist=Object.entries(cmap).sort((a,b)=>b[1].rev-a[1].rev);
+  if(!day.length){document.getElementById('rpt-body').innerHTML=`<div class="rpt-empty">📭 No orders for ${rptDate}</div>`;return;}
+  const hourC=`<div class="hchart"><div class="hbars">${Object.entries(hmap).map(([h,d])=>`<div class="hcol"><div class="hbar" style="height:${d.rev?Math.max(4,(d.rev/maxH)*50):2}px;background:${d.rev?'var(--yellow)':'var(--blue-light)'}"></div><div class="hlbl">${h%12||12}${Number(h)<12?'a':'p'}</div></div>`).join('')}</div></div>`;
+  const topC=`<div class="rtable"><div class="rthd c4"><span>Item</span><span>Qty</span><span>Revenue</span><span>Share</span></div>${ilist.map((it,i)=>`<div class="rtr c4"><span><span class="rnk ${i===0?'rn1':i===1?'rn2':i===2?'rn3':'rnn'}">${i+1}</span>${it.emoji} ${it.name}</span><span style="font-weight:900;color:var(--navy-mid)">${fmt(it.qty)}</span><span style="font-weight:900">₱${fmt(it.rev)}</span><div><div class="bw"><div class="bf" style="width:${(it.qty/maxQ*100).toFixed(0)}%"></div></div></div></div>`).join('')}</div>`;
+  const catC=`<div class="rtable"><div class="rthd c3"><span>Category</span><span>Qty</span><span>Revenue</span></div>${clist.map(([c,d])=>`<div class="rtr c3"><span style="font-weight:800">${CI(c)} ${c}</span><span style="font-weight:900;color:var(--navy-mid)">${fmt(d.qty)}</span><span style="font-weight:900">₱${fmt(d.rev)}</span></div>`).join('')}</div>`;
+  const cols='grid-template-columns:38px 80px 1fr 55px';
+  const cashRows=cashO.length?cashO.map(o=>`<div class="rtr" style="${cols}"><span style="font-family:'Black Han Sans',sans-serif;color:var(--navy-mid)">#${o.qNum||o.id}</span><span style="font-size:10px;font-weight:800">${o.custName||'—'}</span><span style="font-size:9px">${o.items.map(i=>i.qty+'× '+i.name).join(', ')}</span><span style="font-weight:900">₱${fmt(o.total)}</span></div>`).join(''):'<div style="padding:10px;text-align:center;color:var(--gray);font-size:12px;font-weight:700">No cash orders</div>';
+  const gcashRows=gcashO.length?gcashO.map(o=>`<div class="rtr" style="${cols}"><span style="font-family:'Black Han Sans',sans-serif;color:var(--navy-mid)">#${o.qNum||o.id}</span><span style="font-size:10px;font-weight:800">${o.custName||'—'}<br><span style="color:#007AFF;font-weight:900;font-size:9px">📱 ${o.gcashRef||'—'}</span></span><span style="font-size:9px">${o.items.map(i=>i.qty+'× '+i.name).join(', ')}</span><span style="font-weight:900">₱${fmt(o.total)}</span></div>`).join(''):'<div style="padding:10px;text-align:center;color:var(--gray);font-size:12px;font-weight:700">No GCash orders</div>';
+  const logC=`<div class="log-sec-hd" style="background:#1B3A6B"><span>💵</span><span style="font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--yellow)">Cash Orders (${cashO.length}) — ₱${fmt(cashRev)}</span></div><div class="rtable"><div class="rthd" style="${cols}"><span>#</span><span>Customer</span><span>Items</span><span>Total</span></div>${cashRows}</div><div class="log-sec-hd" style="background:#005BBB;margin-top:4px"><span>📱</span><span style="font-family:'Black Han Sans',sans-serif;font-size:12px;color:#fff">GCash Orders (${gcashO.length}) — ₱${fmt(gcashRev)}</span></div><div class="rtable"><div class="rthd" style="${cols}"><span>#</span><span>Customer/Ref</span><span>Items</span><span>Total</span></div>${gcashRows}</div>`;
+
+  document.getElementById('rpt-body').innerHTML=
+    // Summary bar: Orders · Revenue · Avg · Items
+    `<div class="sum-bar">
+      <div class="si"><div class="snum">${fmt(day.length)}</div><div class="slbl">Orders</div></div>
+      <div class="si"><div class="snum">₱${fmt(revenue)}</div><div class="slbl">Revenue</div></div>
+      <div class="si"><div class="snum">₱${fmt(avg)}</div><div class="slbl">Avg Order</div></div>
+      <div class="si"><div class="snum">${fmt(itemsSold)}</div><div class="slbl">Items</div></div>
+    </div>
+    <div class="pay-bar">
+      <div class="si">
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:16px;color:#fff">₱${fmt(cashRev)}</div>
+        <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.6);text-transform:uppercase">💵 Cash · ${cashO.length}</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+      <div class="si">
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:16px;color:#6EC6FF">₱${fmt(gcashRev)}</div>
+        <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.6);text-transform:uppercase">📱 GCash · ${gcashO.length}</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+      <div class="si">
+        <div style="font-family:'Black Han Sans',sans-serif;font-size:16px;color:${avgTimeSecs!==null&&avgTimeSecs>600?'#FFD700':'#A8F0C0'}">${avgTimeStr}</div>
+        <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,.6);text-transform:uppercase">⏱ Avg Time</div>
+      </div>
+    </div>
+    ${makeSection('hours','⏰ Sales by Hour',hourC)}
+    ${makeSection('top','🏆 Top Items',topC)}
+    ${makeSection('cat','🗂 By Category',catC)}
+    ${makeSection('log','🧾 Order Log',logC)}`;
+}
+
+async function exportCSV(){
+  const all=await dbAll('orders');
+  const day=all.filter(o=>o.date===rptDate&&o.paid!==false);
+  let csv='Queue#,Customer,Date,Time Created,Time Done,Duration (secs),Payment,GCash Ref,Items,Total,Cash,Change\n';
+  day.forEach(o=>{
+    const its=o.items.map(i=>`${i.qty}x ${i.name}`).join(' | ');
+    const dur=o.timeDone&&o.timeCreated?calcDuration(o.timeCreated,o.timeDone).toFixed(0):'';
+    csv+=`${o.qNum||o.id},"${o.custName||''}",${o.date},${o.timeCreated?fmtTimeS(o.timeCreated):fmtTime(o.time)},${o.timeDone?fmtTimeS(o.timeDone):''},${dur},${o.payMethod==='gcash'?'GCash':'Cash'},"${o.gcashRef||''}","${its}",${o.total},${o.payMethod==='gcash'?0:o.cash},${o.payMethod==='gcash'?0:o.change.toFixed(0)}\n`;
+  });
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  const a=document.createElement('a');a.href=url;a.download=`Snowee_${rptDate}.csv`;a.click();URL.revokeObjectURL(url);toast('📥 CSV downloaded!');
+}
+
+async function openEmailModal(){
+  document.getElementById('email-addr').value=settings.reportEmail||'';
+  document.getElementById('email-date').value=rptDate;
+  document.getElementById('ejs-service').value=settings.ejsService||'';
+  document.getElementById('ejs-template').value=settings.ejsTemplate||'';
+  document.getElementById('ejs-pubkey').value=settings.ejsPublicKey||'';
+  document.getElementById('gsheet-url').value=settings.gsheetUrl||'';
+  document.getElementById('mod-email').classList.add('open');
+}
+async function saveSettings(){
+  settings.reportEmail=document.getElementById('email-addr').value.trim();
+  settings.ejsService=document.getElementById('ejs-service').value.trim();
+  settings.ejsTemplate=document.getElementById('ejs-template').value.trim();
+  settings.ejsPublicKey=document.getElementById('ejs-pubkey').value.trim();
+  settings.gsheetUrl=document.getElementById('gsheet-url').value.trim();
+  for(const[k,v]of Object.entries(settings))await dbPut('settings',{key:k,value:v});
+  // Backup to localStorage so settings survive app updates
+  localStorage.setItem('snowee_settings',JSON.stringify(settings));
+  toast('✅ Settings saved!');
+}
+async function sendEmailReport(){
+  await saveSettings();
+  const emailTo=settings.reportEmail;
+  if(!emailTo){toast('⚠️ Enter an email address');return;}
+  if(!settings.ejsService||!settings.ejsTemplate||!settings.ejsPublicKey){toast('⚠️ EmailJS settings required');return;}
+  const date=document.getElementById('email-date').value||rptDate;
+  const all=await dbAll('orders');
+  const day=all.filter(o=>o.date===date&&o.paid!==false);
+  if(!day.length){toast('⚠️ No orders for '+date);return;}
+  const revenue=day.reduce((s,o)=>s+o.total,0);
+  const avg=day.length?(revenue/day.length).toFixed(0):0;
+  const itemsSold=day.reduce((s,o)=>s+o.items.reduce((a,i)=>a+i.qty,0),0);
+  const cashO=day.filter(o=>o.payMethod!=='gcash'),gcashO=day.filter(o=>o.payMethod==='gcash');
+  const timedOrders=day.filter(o=>o.done&&o.timeCreated&&o.timeDone);
+  const avgTimeSecs=timedOrders.length?timedOrders.reduce((s,o)=>s+calcDuration(o.timeCreated,o.timeDone),0)/timedOrders.length:null;
+  const imap={};day.forEach(o=>o.items.forEach(i=>{if(!imap[i.name])imap[i.name]={name:i.name,qty:0,rev:0};imap[i.name].qty+=i.qty;imap[i.name].rev+=i.price*i.qty;}));
+  const topItems=Object.values(imap).sort((a,b)=>b.qty-a.qty).map((it,i)=>`${i+1}. ${it.name} — ${it.qty} sold — ₱${fmt(it.rev)}`).join('\n');
+  const orderLog=day.map(o=>`#${o.qNum||o.id}${o.custName?' ('+o.custName+')':''} | ${o.payMethod==='gcash'?'📱 '+o.gcashRef:'💵'} | ${fmtTime(o.time)} | ${o.items.map(i=>i.qty+'x '+i.name).join(', ')} | ₱${fmt(o.total)}${o.timeDone?' | ⏱'+fmtDuration(calcDuration(o.timeCreated||o.time,o.timeDone)):''}`).join('\n');
+  try{
+    emailjs.init(settings.ejsPublicKey);
+    await emailjs.send(settings.ejsService,settings.ejsTemplate,{to_email:emailTo,subject:`Snowee Sales Report — ${date}`,report_date:date,total_orders:String(day.length),total_revenue:'₱'+fmt(revenue),avg_order:'₱'+fmt(avg),items_sold:String(itemsSold),cash_in:`₱${fmt(cashO.reduce((s,o)=>s+o.total,0))} (${cashO.length} orders)`,gcash_in:`₱${fmt(gcashO.reduce((s,o)=>s+o.total,0))} (${gcashO.length} orders)`,avg_time:avgTimeSecs!==null?fmtDuration(avgTimeSecs):'—',top_items:topItems});
+    toast('📧 Report sent to '+emailTo+'!');
+  }catch(e){toast('❌ Email failed: '+(e.text||e.message||'check settings'));console.error(e);}
+}
+/* ── PIN System ── */
+let pinBuffer='',pinTarget='',pinMode='verify'; // modes: verify, change
+let appPIN='1234'; // default, overridden from settings
+
+async function loadPIN(){
+  const r=await dbGet('settings','appPIN');
+  if(r)appPIN=r.value;
+}
+
+function requirePIN(target){
+  pinTarget=target;pinMode='verify';pinBuffer='';
+  document.getElementById('pin-title').textContent='🔒 Enter PIN';
+  document.getElementById('pin-err').textContent='';
+  updatePinDots();
+  document.getElementById('mod-pin').classList.add('open');
+}
+
+function pinKey(k){
+  if(pinBuffer.length>=4)return;
+  pinBuffer+=k;
+  updatePinDots();
+  if(pinBuffer.length===4)setTimeout(checkPIN,120);
+}
+
+function pinDel(){
+  pinBuffer=pinBuffer.slice(0,-1);
+  updatePinDots();
+  document.getElementById('pin-err').textContent='';
+}
+
+function updatePinDots(){
+  for(let i=0;i<4;i++){
+    document.getElementById('pd'+i).classList.toggle('filled',i<pinBuffer.length);
+  }
+}
+
+function checkPIN(){
+  if(pinMode==='change'){
+    if(pinBuffer.length<4){document.getElementById('pin-err').textContent='Enter 4 digits';pinBuffer='';updatePinDots();return;}
+    appPIN=pinBuffer;
+    dbPut('settings',{key:'appPIN',value:appPIN});
+    closeModal('mod-pin');toast('✅ PIN updated!');
+    pinBuffer='';return;
+  }
+  if(pinBuffer===appPIN){
+    closeModal('mod-pin');
+    pinBuffer='';
+    if(pinTarget==='editor')showScreen('editor');
+    else if(pinTarget==='settings')openEmailModal();
+    else if(pinTarget==='factory')confirmFactoryReset();
+  } else {
+    document.getElementById('pin-err').textContent='❌ Wrong PIN';
+    pinBuffer='';updatePinDots();
+  }
+}
+
+function changePIN(){
+  const np=document.getElementById('new-pin').value.trim();
+  if(np.length!==4||!/^\d{4}$/.test(np)){toast('⚠️ PIN must be exactly 4 digits');return;}
+  appPIN=np;
+  dbPut('settings',{key:'appPIN',value:appPIN});
+  document.getElementById('new-pin').value='';
+  toast('✅ PIN updated!');
+}
+
+/* ── Factory Reset ── */
+function factoryReset(){
+  closeModal('mod-email');
+  requirePIN('factory');
+}
+
+async function confirmFactoryReset(){
+  if(!confirm('⚠️ This will delete ALL orders, menu items, and settings. This cannot be undone. Continue?'))return;
+  // Clear all stores
+  const stores=['menu','orders','settings'];
+  for(const s of stores){
+    const all=await dbAll(s);
+    for(const item of all)await dbDel(s,item.id||item.key);
+  }
+  // Reset in-memory state
+  menu=[];cart=[];orders=[];settings={};appPIN='1234';
+  toast('🏭 Factory reset complete! Reloading...');
+  setTimeout(()=>location.reload(),1500);
+}
+
+/* ── Daily Queue Reset ── */
+async function getNextQNum(){
+  const todayStr=new Date().toISOString().split('T')[0];
+  const all=await dbAll('orders');
+  return all.filter(o=>o.date===todayStr).length+1;
+}
+
+/* ── Live Kitchen Timer ── */
+let kitchenTimerInterval=null;
+
+function startKitchenTimer(){
+  if(kitchenTimerInterval)clearInterval(kitchenTimerInterval);
+  kitchenTimerInterval=setInterval(updateWaitTimers,1000);
+}
+
+function stopKitchenTimer(){
+  if(kitchenTimerInterval)clearInterval(kitchenTimerInterval);
+  kitchenTimerInterval=null;
+}
+
+function updateWaitTimers(){
+  const now=Date.now();
+  document.querySelectorAll('[data-created]').forEach(el=>{
+    const created=parseInt(el.dataset.created);
+    const secs=Math.floor((now-created)/1000);
+    const m=Math.floor(secs/60),s=secs%60;
+    const str=m>0?`${m}m ${s}s`:`${s}s`;
+    el.textContent=`⏱ ${str}`;
+    el.className='kcard-wait '+(secs<300?'ok':secs<600?'warn':'late');
+  });
+}
+
+
+let isSyncing=false; // prevent overlapping sync calls
+
+// Core: sync one order to Sheets
+async function syncOrderToSheets(order){
+  if(!settings.gsheetUrl||!navigator.onLine)return false;
+  try{
+    const rows=order.items.map(i=>({
+      date:order.date,time:fmtTime(order.time),
+      timeCreated:order.timeCreated?fmtTimeS(order.timeCreated):fmtTime(order.time),
+      timeDone:order.timeDone?fmtTimeS(order.timeDone):'',
+      durationSecs:order.timeDone&&order.timeCreated?calcDuration(order.timeCreated,order.timeDone).toFixed(0):'',
+      queue:'#'+(order.qNum||order.id),customer:order.custName||'',
+      payment:order.payMethod==='gcash'?'GCash':'Cash',gcashRef:order.gcashRef||'',
+      item:i.name,category:i.cat||'',qty:i.qty,unit_price:i.price,
+      subtotal:i.price*i.qty,order_total:order.total,
+      cash:order.cash,change:order.change.toFixed(0)
+    }));
+    const res=await fetch(settings.gsheetUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'addRows',rows})});
+    if(!res.ok)return false;
+    try{const j=await res.clone().json();if(j&&j.status==='error')return false;}catch(e){}
+    order.synced=true;await dbPut('orders',order);
+    // update local array too
+    const idx=orders.findIndex(o=>o.id===order.id);
+    if(idx>-1)orders[idx].synced=true;
+    return true;
+  }catch(e){return false;}
+}
+
+// Silently sync all unsynced orders — no toast unless explicitly triggered
+async function autoSyncAll(showToast=false){
+  if(isSyncing||!settings.gsheetUrl||!navigator.onLine)return;
+  isSyncing=true;
+  try{
+    const all=await dbAll('orders');
+    const unsynced=all.filter(o=>o.paid!==false&&!o.synced);
+    if(!unsynced.length){
+      if(showToast)toast('✅ All orders already in Sheets!');
+      isSyncing=false;return;
+    }
+    let ok=0;
+    for(const o of unsynced){if(await syncOrderToSheets(o))ok++;}
+    updateSyncDot();
+    if(showToast)toast(`☁️ ${ok} order${ok>1?'s':''} sent to Sheets!`);
+    else if(ok>0)toast(`☁️ ${ok} order${ok>1?'s':''} synced`);
+  }catch(e){}
+  isSyncing=false;
+}
+
+// Manual sync button (still available in Settings)
+async function syncToSheets(){
+  await saveSettings();
+  if(!settings.gsheetUrl){toast('⚠️ Enter Google Script URL first');return;}
+  if(!navigator.onLine){toast('📴 No internet — will sync when connected');return;}
+  await autoSyncAll(true);
+}
+
+// Sync dot indicator — shows unsynced count
+async function updateSyncDot(){
+  if(!settings.gsheetUrl)return;
+  const all=await dbAll('orders');
+  const n=all.filter(o=>o.paid!==false&&!o.synced).length;
+  const dot=document.getElementById('cdot');
+  if(!navigator.onLine){dot.className='dot off';dot.title='Offline';}
+  else if(n>0){dot.style.background='#FF9500';dot.style.boxShadow='0 0 6px #FF9500';dot.title=n+' unsynced';}
+  else{dot.style.background='';dot.style.boxShadow='';dot.className='dot';dot.title='Online · All synced';}
+}
+
+// Auto-sync triggers
+window.addEventListener('online',()=>{
+  updateConn();
+  toast('🌐 Back online — syncing...');
+  setTimeout(()=>autoSyncAll(false),1500); // slight delay to let connection stabilize
+});
+window.addEventListener('offline',()=>{updateConn();updateSyncDot();toast('📴 Offline — orders saved locally');});
+// Reset sync flags so all orders retry
+async function resetSync(){
+  if(!confirm('This will mark all orders as unsynced and retry. Continue?'))return;
+  const all=await dbAll('orders');
+  for(const o of all){o.synced=false;await dbPut('orders',o);}
+  orders=await dbAll('orders');
+  toast('🔄 Sync reset! Retrying...');
+  setTimeout(()=>autoSyncAll(true),500);
+}
+// Auto-email scheduler — checks every minute if it's 7:30PM
+let autoEmailFired=false;
+function scheduleAutoEmail(){
+  setInterval(async()=>{
+    const now=new Date();
+    const h=now.getHours(),m=now.getMinutes();
+    const todayStr=now.toISOString().split('T')[0];
+    // Fire at 7:30PM, only once per day
+    if(h===19&&m===30){
+      if(autoEmailFired===todayStr)return; // already sent today
+      autoEmailFired=todayStr;
+      if(!settings.ejsService||!settings.ejsPublicKey||!settings.ejsTemplate||!settings.reportEmail)return;
+      toast('📧 Sending daily report...');
+      await sendEmailReport();
+    }
+  },60000); // check every 60 seconds
+}
+async function renderEditor(){
+  menu=await dbAll('menu');
+  const grouped={};menu.forEach(i=>{if(!grouped[i.cat])grouped[i.cat]=[];grouped[i.cat].push(i);});
+  document.getElementById('catlist').innerHTML=[...new Set(menu.map(i=>i.cat))].map(c=>`<option value="${c}">`).join('');
+  document.getElementById('ed-body').innerHTML=Object.entries(grouped).map(([cat,its])=>{
+    const isOpen=!collapsedCats.has(cat);
+    return `<div class="egroup"><div class="ecat-hd" onclick="toggleCat('${cat.replace(/'/g,"&#39;")}')"><div style="display:flex;align-items:center;gap:6px"><div class="ecat-name">${CI(cat)} ${cat}</div><span style="font-size:10px;font-weight:800;color:rgba(255,215,0,.5)">(${its.length})</span></div><span class="ecat-arrow ${isOpen?'open':''}">▼</span></div><div class="ecat-items ${isOpen?'':'collapsed'}">${its.map(item=>`<div class="eitem"><div class="eemoji">${item.emoji}</div><div class="einfo"><div class="ename">${item.name}${item.badge?` <span style="background:var(--yellow);color:var(--navy);font-size:8px;padding:1px 4px;border-radius:4px;font-weight:900">${item.badge}</span>`:''}</div><div class="eprice">₱${fmt(item.price)}</div></div><div class="eacts"><button class="tog ${item.available!==false?'on':'off'}" onclick="toggleAvail(${item.id})">${item.available!==false?'ON':'OFF'}</button><button class="edit-btn" onclick="openItemModal(${item.id})">Edit</button><button class="del-btn" onclick="delItem(${item.id})">🗑</button></div></div>`).join('')}</div></div>`;
+  }).join('')+(!menu.length?'<div style="text-align:center;padding:40px;color:var(--gray);font-weight:700">No items yet.</div>':'');
+}
+function toggleCat(cat){if(collapsedCats.has(cat))collapsedCats.delete(cat);else collapsedCats.add(cat);renderEditor();}
+async function toggleAvail(id){const item=menu.find(i=>i.id===id);if(!item)return;item.available=!item.available;await dbPut('menu',item);renderEditor();renderMenu();}
+async function delItem(id){const item=menu.find(i=>i.id===id);if(!item)return;if(!confirm(`Delete "${item.name}"?`))return;await dbDel('menu',id);menu=menu.filter(i=>i.id!==id);renderEditor();renderCats();renderMenu();}
+function openItemModal(id){
+  editId=id;const item=id?menu.find(i=>i.id===id):null;selEmoji=item?item.emoji:'🧇';
+  document.getElementById('item-modal-title').textContent=id?'✏️ Edit Item':'➕ New Item';
+  document.getElementById('f-name').value=item?item.name:'';
+  document.getElementById('f-price').value=item?item.price:'';
+  document.getElementById('f-cat').value=item?item.cat:'';
+  document.getElementById('f-badge').value=item?(item.badge||''):'';
+  document.getElementById('f-avail').checked=item?item.available!==false:true;
+  renderEmojiGrid();document.getElementById('mod-item').classList.add('open');
+}
+function renderEmojiGrid(){document.getElementById('egrid').innerHTML=EMOJIS.map(e=>`<div class="eopt ${e===selEmoji?'sel':''}" onclick="pickEmoji('${e}')">${e}</div>`).join('');}
+function pickEmoji(e){selEmoji=e;renderEmojiGrid();}
+async function saveItem(){
+  const name=document.getElementById('f-name').value.trim();
+  const price=parseFloat(document.getElementById('f-price').value);
+  const cat=document.getElementById('f-cat').value.trim();
+  if(!name||isNaN(price)||!cat){toast('⚠️ Fill name, price & category');return;}
+  const obj={emoji:selEmoji,name,price,cat,badge:document.getElementById('f-badge').value.trim().toUpperCase(),available:document.getElementById('f-avail').checked};
+  if(editId)obj.id=editId;
+  await dbPut('menu',obj);menu=await dbAll('menu');
+  closeModal('mod-item');renderEditor();renderCats();renderMenu();
+  toast(editId?`✅ ${name} updated`:`✅ ${name} added`);
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(m=>{m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');});});
+let toastT;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2400);}
+async function resyncDate(){
+  if(!settings.gsheetUrl){toast('Enter Google Script URL in Settings');return;}
+  if(!navigator.onLine){toast('No internet');return;}
+  const date=rptDate;
+  const all=await dbAll('orders');
+  const day=all.filter(o=>o.date===date&&o.paid!==false);
+  if(!day.length){toast('No orders for '+date);return;}
+  if(!confirm('Resync '+day.length+' orders for '+date+' to Sheets?'))return;
+  toast('Resyncing...');
+  let ok=0;
+  for(const o of day){
+    o.synced=false;
+    await dbPut('orders',o);
+    if(await syncOrderToSheets(o))ok++;
+    await new Promise(r=>setTimeout(r,300));
+  }
+  toast(ok+' orders synced to Sheets!');
+}
+
+init();
+
+// Register Service Worker for offline support
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/snowee-pos/sw.js')
+      .then(()=>console.log('SW registered'))
+      .catch(e=>console.log('SW failed:',e));
+  });
+}
+</script>
+</body>
+</html>
