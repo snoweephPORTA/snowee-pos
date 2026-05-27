@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Snowee Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#1B3A6B;--navy-mid:#234a87;--navy-light:#2d5aa8;
+  --yellow:#FFD700;--yellow-dark:#E6BE00;--yellow-light:#FFF9C4;
+  --white:#FFFFFF;--offwhite:#F4F7FF;--blue-light:#E8EEF8;
+  --red:#E63946;--green:#22C55E;--gray:#6B7A99;
+  --shadow:0 4px 18px rgba(27,58,107,.12);--radius:14px;--radius-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--offwhite);color:var(--navy);}
+#app{display:flex;flex-direction:column;min-height:100%;}
+.topnav{background:var(--navy);border-bottom:3px solid var(--yellow);padding:0 14px;height:55px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.logo{font-family:'Black Han Sans',sans-serif;color:var(--yellow);font-size:18px;}
+.logo span{color:#fff;}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.refresh-btn{background:rgba(255,215,0,.15);border:1px solid rgba(255,215,0,.3);border-radius:8px;color:var(--yellow);font-size:11px;font-weight:800;padding:5px 10px;cursor:pointer;}
+.last-update{font-size:9px;font-weight:700;color:rgba(255,255,255,.4);}
+.tabbar{background:var(--navy);border-bottom:2px solid rgba(255,215,0,.2);display:flex;padding:0 8px 10px;gap:5px;flex-shrink:0;}
+.tabbtn{flex:1;background:rgba(255,255,255,.08);border:2px solid rgba(255,215,0,.2);border-radius:10px;color:rgba(255,255,255,.6);font-family:'Black Han Sans',sans-serif;font-size:10px;padding:7px 2px;cursor:pointer;text-align:center;}
+.tabbtn.active{background:var(--yellow);border-color:var(--yellow);color:var(--navy);}
+.content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;display:flex;flex-direction:column;gap:10px;}
+.tab-panel{display:none;flex-direction:column;gap:10px;}
+.tab-panel.active{display:flex;}
+
+/* Cards */
+.card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);border:2px solid var(--blue-light);overflow:hidden;}
+.card-hd{background:var(--navy);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--yellow);}
+.card-sub{font-size:10px;font-weight:700;color:rgba(255,255,255,.5);}
+.card-body{padding:12px 14px;}
+
+/* Stats */
+.big-stat{text-align:center;padding:14px 12px;}
+.big-num{font-family:'Black Han Sans',sans-serif;font-size:40px;color:var(--navy);line-height:1;}
+.big-lbl{font-size:11px;font-weight:800;color:var(--gray);text-transform:uppercase;margin-top:4px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 14px;}
+.stat-item{text-align:center;background:var(--offwhite);border-radius:8px;padding:8px 4px;}
+.stat-num{font-family:'Black Han Sans',sans-serif;font-size:18px;color:var(--navy);}
+.stat-lbl{font-size:9px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+.pay-row{display:flex;padding:10px 14px;gap:8px;}
+.pay-item{flex:1;text-align:center;background:var(--offwhite);border-radius:8px;padding:8px 4px;}
+.pay-num{font-family:'Black Han Sans',sans-serif;font-size:15px;color:var(--navy);}
+.pay-lbl{font-size:9px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+
+/* Charts */
+.bar-chart{padding:10px 14px 6px;}
+.bars{display:flex;align-items:flex-end;gap:2px;height:60px;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;}
+.bar-fill{border-radius:3px 3px 0 0;width:100%;min-height:2px;}
+.bar-lbl{font-size:7px;font-weight:800;color:var(--gray);}
+.bar-val{font-size:6px;font-weight:900;color:var(--navy-mid);}
+.week-bars{display:flex;align-items:flex-end;gap:4px;height:80px;}
+.week-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:2px;}
+.week-fill{border-radius:4px 4px 0 0;width:100%;min-height:2px;}
+.week-lbl{font-size:8px;font-weight:800;color:var(--gray);}
+.week-val{font-size:7px;font-weight:900;color:var(--navy-mid);}
+.week-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;padding:10px 14px;}
+.ws{background:var(--offwhite);border-radius:8px;padding:8px 6px;text-align:center;}
+.ws-num{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);}
+.ws-lbl{font-size:8px;font-weight:800;color:var(--gray);text-transform:uppercase;}
+
+/* Rankings */
+.rank-list{display:flex;flex-direction:column;}
+.rank-item{display:flex;align-items:center;padding:7px 14px;border-bottom:1px solid var(--blue-light);gap:8px;}
+.rank-item:last-child{border-bottom:none;}
+.rnum{font-family:'Black Han Sans',sans-serif;font-size:12px;width:22px;text-align:center;flex-shrink:0;}
+.rn1{color:var(--yellow);}
+.rn2{color:#C0C0C0;}
+.rn3{color:#CD7F32;}
+.rnn{color:var(--gray);}
+.rank-info{flex:1;min-width:0;}
+.rank-name{font-weight:800;font-size:11px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rank-cat{font-size:9px;font-weight:700;color:var(--gray);}
+.rank-bar-wrap{background:var(--blue-light);border-radius:3px;height:3px;margin-top:3px;}
+.rank-bar-fill{background:var(--yellow);border-radius:3px;height:3px;}
+.rank-right{text-align:right;flex-shrink:0;}
+.rank-qty{font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--navy);}
+.rank-rev{font-size:9px;font-weight:700;color:var(--gray);}
+
+/* Date row */
+.date-row{background:var(--white);border-radius:var(--radius-sm);padding:8px 12px;border:2px solid var(--blue-light);display:flex;align-items:center;gap:8px;}
+.date-in{background:var(--blue-light);border:2px solid rgba(27,58,107,.2);border-radius:8px;padding:5px 7px;font-weight:800;font-size:11px;color:var(--navy);outline:none;flex:1;}
+.today-btn{background:var(--yellow);border:none;border-radius:7px;font-weight:900;font-size:10px;padding:6px 10px;cursor:pointer;color:var(--navy);white-space:nowrap;}
+
+/* Filter pills */
+.filter-row{display:flex;gap:6px;padding:0;}
+.fpill{flex:1;background:var(--white);border:2px solid var(--blue-light);border-radius:20px;font-weight:800;font-size:10px;color:var(--gray);padding:6px 4px;cursor:pointer;text-align:center;}
+.fpill.active{background:var(--navy);border-color:var(--navy);color:var(--yellow);}
+
+/* History */
+.history-item{display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--blue-light);gap:10px;}
+.history-item:last-child{border-bottom:none;}
+.hist-date{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);min-width:70px;}
+.hist-rev{font-family:'Black Han Sans',sans-serif;font-size:16px;color:var(--navy);}
+.hist-sub{font-size:10px;font-weight:700;color:var(--gray);}
+.hist-arrow{color:var(--gray);font-size:14px;}
+
+/* Day detail overlay */
+.overlay{position:fixed;inset:0;background:rgba(18,40,80,.7);z-index:200;display:none;flex-direction:column;}
+.overlay.open{display:flex;}
+.detail-hd{background:var(--navy);border-bottom:3px solid var(--yellow);padding:0 14px;height:55px;display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.back-btn{background:rgba(255,215,0,.2);border:none;border-radius:8px;color:var(--yellow);font-weight:900;font-size:13px;padding:6px 12px;cursor:pointer;}
+.detail-title{font-family:'Black Han Sans',sans-serif;font-size:17px;color:var(--yellow);}
+.detail-body{padding:10px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+
+/* Insights */
+.insight-item{display:flex;gap:10px;padding:10px 14px;border-bottom:1px solid var(--blue-light);align-items:flex-start;}
+.insight-item:last-child{border-bottom:none;}
+.insight-icon{font-size:20px;flex-shrink:0;margin-top:2px;}
+.insight-text{flex:1;}
+.insight-title{font-weight:900;font-size:12px;color:var(--navy);}
+.insight-desc{font-size:11px;font-weight:700;color:var(--gray);margin-top:2px;line-height:1.4;}
+.insight-badge{display:inline-block;border-radius:6px;font-size:9px;font-weight:900;padding:2px 7px;margin-top:4px;}
+.badge-green{background:#dcfce7;color:#16a34a;}
+.badge-yellow{background:var(--yellow-light);color:#92400e;}
+.badge-red{background:#fee2e2;color:#dc2626;}
+.badge-blue{background:#dbeafe;color:#1d4ed8;}
+
+/* Empty/Loading */
+.empty{text-align:center;padding:40px 20px;color:var(--gray);font-weight:700;font-size:13px;}
+.loading{text-align:center;padding:40px;color:var(--gray);}
+.spinner{width:32px;height:32px;border:3px solid var(--blue-light);border-top-color:var(--yellow);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* Highlight rows */
+.hl-row{display:flex;justify-content:space-between;align-items:center;background:var(--offwhite);padding:8px 10px;border-radius:8px;margin-bottom:6px;}
+.hl-lbl{font-size:10px;font-weight:800;text-transform:uppercase;}
+.hl-val{font-family:'Black Han Sans',sans-serif;font-size:16px;color:var(--navy);}
+
+/* Order Log */
+.order-log-item{display:flex;flex-direction:column;padding:10px 14px;border-bottom:1px solid var(--blue-light);gap:3px;}
+.order-log-item:last-child{border-bottom:none;}
+.order-log-top{display:flex;align-items:center;gap:8px;}
+.order-log-num{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);min-width:40px;}
+.order-log-cust{font-size:11px;font-weight:800;color:var(--gray);flex:1;}
+.order-log-pay{font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;}
+.pay-cash{background:#dcfce7;color:#15803d;}
+.pay-gcash{background:#dbeafe;color:#1d4ed8;}
+.order-log-total{font-family:'Black Han Sans',sans-serif;font-size:14px;color:var(--navy);}
+.order-log-items{font-size:11px;font-weight:700;color:var(--gray);line-height:1.5;}
+.order-log-time{font-size:10px;font-weight:700;color:var(--gray);}
+
+/* Category */
+.cat-item{display:flex;align-items:center;padding:8px 14px;border-bottom:1px solid var(--blue-light);gap:8px;}
+.cat-item:last-child{border-bottom:none;}
+.cat-info{flex:1;min-width:0;}
+.cat-name{font-weight:800;font-size:11px;color:var(--navy);}
+.cat-bar-wrap{background:var(--blue-light);border-radius:3px;height:4px;margin-top:3px;}
+.cat-bar-fill{background:var(--navy-light);border-radius:3px;height:4px;}
+.cat-right{text-align:right;flex-shrink:0;}
+.cat-qty{font-size:10px;font-weight:800;color:var(--gray);}
+.cat-rev{font-family:'Black Han Sans',sans-serif;font-size:13px;color:var(--navy);}
+
+/* Toast */
+.toast{position:fixed;top:62px;left:50%;transform:translateX(-50%);background:var(--navy);color:var(--yellow);font-weight:900;font-size:12px;padding:8px 16px;border-radius:20px;box-shadow:0 4px 16px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:500;white-space:nowrap;border:2px solid var(--yellow);}
+.toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topnav">
+    <div class="logo">sn<span>ow</span>ee <span style="font-size:11px;color:rgba(255,255,255,.5);font-family:'Nunito',sans-serif;font-weight:800;">Analytics</span></div>
+    <div class="nav-right">
+      <div class="last-update" id="last-update">—</div>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    </div>
+  </div>
+  <div class="tabbar">
+    <button class="tabbtn active" onclick="switchTab('today')">📊 Today</button>
+    <button class="tabbtn" onclick="switchTab('weekly')">📅 Week</button>
+    <button class="tabbtn" onclick="switchTab('items')">🏆 Items</button>
+    <button class="tabbtn" onclick="switchTab('history')">📋 History</button>
+    <button class="tabbtn" onclick="switchTab('insights')">💡 Insights</button>
+  </div>
+  <div class="content">
+    <!-- TODAY -->
+    <div class="tab-panel active" id="tab-today">
+      <div class="date-row">
+        <span style="font-family:'Black Han Sans',sans-serif;font-size:12px;color:var(--navy);">📅</span>
+        <input type="date" id="date-picker" class="date-in" onchange="selectedDate=this.value;renderToday();">
+        <button class="today-btn" onclick="goToday()">Today</button>
+      </div>
+      <div id="today-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+    <!-- WEEKLY -->
+    <div class="tab-panel" id="tab-weekly">
+      <div id="weekly-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+    <!-- ITEMS -->
+    <div class="tab-panel" id="tab-items">
+      <div class="filter-row">
+        <button class="fpill active" onclick="setItemFilter('today')">Today</button>
+        <button class="fpill" onclick="setItemFilter('week')">Week</button>
+        <button class="fpill" onclick="setItemFilter('alltime')">All Time</button>
+      </div>
+      <div id="items-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+    <!-- HISTORY -->
+    <div class="tab-panel" id="tab-history">
+      <div id="history-body"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+    </div>
+    <!-- INSIGHTS -->
+    <div class="tab-panel" id="tab-insights">
+      <div id="insights-body"><div class="loading"><div class="spinner"></div>Analyzing...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Day Detail Overlay -->
+<div class="overlay" id="day-overlay">
+  <div class="detail-hd">
+    <button class="back-btn" onclick="closeDetail()">← Back</button>
+    <div class="detail-title" id="detail-title">—</div>
+  </div>
+  <div class="detail-body" id="detail-body"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA_URL = 'https://snoweephporta.github.io/snowee-pos/data.json';
+const fmt = n => Number(n).toLocaleString('en-PH');
+const fmtK = n => n >= 1000 ? '₱' + (n/1000).toFixed(1) + 'k' : '₱' + fmt(Math.round(n));
+
+function fixDate(d){
+  if(!d) return '';
+  const s = String(d);
+  if(s.includes('T')) return s.split('T')[0];
+  return s;
+}
+function getHour(t){
+  if(!t) return -1;
+  const s = String(t).trim();
+  if(s.includes('T')) return parseInt(s.split('T')[1].split(':')[0]);
+  if(s.includes(':')) return parseInt(s.split(':')[0]);
+  return -1;
+}
+function fmtDateLabel(dateStr){
+  const d = new Date(dateStr + 'T00:00:00');
+  return d.toLocaleDateString([], {month:'short', day:'numeric', weekday:'short'});
+}
+const today = () => new Date().toISOString().split('T')[0];
+
+let rawRows = [], dailySummary = [], itemSummary = [], categorySummary = [];
+let currentTab = 'today', selectedDate = today(), itemFilter = 'today';
+
+async function loadData(){
+  toast('↻ Loading data...');
+  try {
+    const res = await fetch(DATA_URL + '?t=' + Date.now());
+    const json = await res.json();
+    if(json.status === 'ok'){
+      rawRows = (json.rawRows || []).map(r => ({...r, date: fixDate(r.date)}));
+      dailySummary = json.dailySummary || [];
+      itemSummary = json.itemSummary || [];
+      categorySummary = json.categorySummary || [];
+      document.getElementById('last-update').textContent = 'Updated ' + new Date(json.updated).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      document.getElementById('date-picker').value = selectedDate;
+      renderCurrentTab();
+      toast('✅ Data loaded!');
+    } else throw new Error(json.message || 'Error');
+  } catch(e) { toast('❌ ' + e.message); console.error(e); }
+}
+
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tabbtn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.tabbtn')[['today','weekly','items','history','insights'].indexOf(tab)].classList.add('active');
+  renderCurrentTab();
+}
+
+function renderCurrentTab(){
+  if(currentTab==='today') renderToday();
+  else if(currentTab==='weekly') renderWeekly();
+  else if(currentTab==='items') renderItems();
+  else if(currentTab==='history') renderHistory();
+  else if(currentTab==='insights') renderInsights();
+}
+
+function goToday(){ selectedDate = today(); document.getElementById('date-picker').value = selectedDate; renderToday(); }
+
+// ── HELPERS ──
+function getOrders(rows){
+  const o = {};
+  rows.forEach(r => {
+    const k = String(r.queue||'').replace('#','').trim() || 'unknown';
+    if(!o[k]) o[k] = {total:0, payment:r.payment||'Cash', durationSecs:0};
+    const t = parseFloat(r.order_total)||0;
+    if(t>0) o[k].total = t;
+    if(r.payment) o[k].payment = r.payment;
+    const d = parseFloat(r.durationSecs)||0;
+    if(d>0) o[k].durationSecs = d;
+  });
+  return Object.values(o);
+}
+
+function getItemsFromRows(rows, limit=20){
+  const m = {};
+  rows.forEach(r => {
+    if(!r.item) return;
+    const key = r.item + '||' + (r.category||'');
+    if(!m[key]) m[key] = {name:r.item, cat:r.category||'', qty:0, rev:0};
+    m[key].qty += parseInt(r.qty)||0;
+    m[key].rev += parseFloat(r.subtotal)||0;
+  });
+  return Object.values(m).sort((a,b) => b.qty-a.qty).slice(0, limit);
+}
+
+// Dynamic category breakdown — works with any categories
+function categoryBreakdown(rows){
+  const m = {};
+  rows.forEach(r => {
+    const cat = String(r.category||'').trim();
+    if(!cat) return;
+    if(!m[cat]) m[cat] = {name:cat, qty:0, rev:0};
+    m[cat].qty += parseInt(r.qty)||0;
+    m[cat].rev += parseFloat(r.subtotal)||0;
+  });
+  const cats = Object.values(m).sort((a,b) => b.rev-a.rev);
+  if(!cats.length) return '<div class="empty">No data</div>';
+  const maxRev = cats[0].rev || 1;
+  return `<div class="rank-list">${cats.map((c,i) => `
+    <div class="cat-item">
+      <div class="rnum ${i===0?'rn1':i===1?'rn2':i===2?'rn3':'rnn'}">${i+1}</div>
+      <div class="cat-info">
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:${(c.rev/maxRev*100).toFixed(0)}%"></div></div>
+      </div>
+      <div class="cat-right">
+        <div class="cat-qty">${c.qty} sold</div>
+        <div class="cat-rev">₱${fmt(c.rev.toFixed(0))}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function rankList(items){
+  if(!items.length) return '<div class="empty">No data</div>';
+  const max = items[0].qty || 1;
+  return `<div class="rank-list">${items.map((it,i) => `
+    <div class="rank-item">
+      <div class="rnum ${i===0?'rn1':i===1?'rn2':i===2?'rn3':'rnn'}">${i+1}</div>
+      <div class="rank-info">
+        <div class="rank-name">${it.name||it.item}</div>
+        <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${(it.qty/max*100).toFixed(0)}%"></div></div>
+      </div>
+      <div class="rank-right">
+        <div class="rank-qty">${it.qty}x</div>
+        <div class="rank-rev">₱${fmt((it.rev||it.totalRevenue||0).toFixed(0))}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function rankListAllTime(items){
+  if(!items.length) return '<div class="empty">No data</div>';
+  const max = items[0].totalQty || 1;
+  return `<div class="rank-list">${items.map((it,i) => `
+    <div class="rank-item">
+      <div class="rnum ${i===0?'rn1':i===1?'rn2':i===2?'rn3':'rnn'}">${i+1}</div>
+      <div class="rank-info">
+        <div class="rank-name">${it.item}</div>
+        <div class="rank-cat">${it.category}</div>
+        <div class="rank-bar-wrap"><div class="rank-bar-fill" style="width:${(it.totalQty/max*100).toFixed(0)}%"></div></div>
+      </div>
+      <div class="rank-right">
+        <div class="rank-qty">${it.totalQty}x</div>
+        <div class="rank-rev">₱${fmt(it.totalRevenue.toFixed(0))}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function categoryListAllTime(cats){
+  if(!cats.length) return '<div class="empty">No data</div>';
+  const max = cats[0].totalRevenue || 1;
+  return `<div class="rank-list">${cats.map((c,i) => `
+    <div class="cat-item">
+      <div class="rnum ${i===0?'rn1':i===1?'rn2':i===2?'rn3':'rnn'}">${i+1}</div>
+      <div class="cat-info">
+        <div class="cat-name">${c.category}</div>
+        <div class="cat-bar-wrap"><div class="cat-bar-fill" style="width:${(c.totalRevenue/max*100).toFixed(0)}%"></div></div>
+      </div>
+      <div class="cat-right">
+        <div class="cat-qty">${c.totalQty} sold</div>
+        <div class="cat-rev">₱${fmt(c.totalRevenue.toFixed(0))}</div>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+// ── BUILD DAY CARD (used by Today + Day Detail) ──
+function buildDayCard(rows, dateStr){
+  if(!rows.length) return `<div class="empty">📭 No orders for ${fmtDateLabel(dateStr)}</div>`;
+  const orders = getOrders(rows);
+  const rev = orders.reduce((s,o) => s+o.total, 0);
+  const cashO = orders.filter(o => o.payment==='Cash');
+  const gcashO = orders.filter(o => o.payment==='GCash');
+  const timed = orders.filter(o => o.durationSecs>0);
+  const avgSecs = timed.length ? timed.reduce((s,o) => s+o.durationSecs,0)/timed.length : 0;
+  const avgT = avgSecs>0 ? Math.floor(avgSecs/60)+'m '+Math.round(avgSecs%60)+'s' : '—';
+  const items = getItemsFromRows(rows, 20);
+
+  const hmap = {}; for(let h=6;h<=22;h++) hmap[h]=0;
+  rows.forEach(r => { const h=getHour(r.time); if(h>=6&&h<=22) hmap[h]+=(parseFloat(r.subtotal)||0); });
+  const maxH = Math.max(...Object.values(hmap), 1);
+  const peakH = Object.entries(hmap).sort((a,b) => b[1]-a[1])[0];
+  const peakLabel = peakH[1]>0 ? `${peakH[0]%12||12}${Number(peakH[0])<12?'AM':'PM'}` : '—';
+
+  return `
+    <div class="card">
+      <div class="big-stat"><div class="big-num">₱${fmt(rev.toFixed(0))}</div><div class="big-lbl">Total Revenue</div></div>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="stat-num">${orders.length}</div><div class="stat-lbl">Orders</div></div>
+        <div class="stat-item"><div class="stat-num">₱${fmt((orders.length?rev/orders.length:0).toFixed(0))}</div><div class="stat-lbl">Avg Order</div></div>
+        <div class="stat-item"><div class="stat-num">${avgT}</div><div class="stat-lbl">Avg Time</div></div>
+        <div class="stat-item"><div class="stat-num">${peakLabel}</div><div class="stat-lbl">Peak Hour</div></div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-item"><div class="pay-num">₱${fmt(cashO.reduce((s,o)=>s+o.total,0).toFixed(0))}</div><div class="pay-lbl">💵 Cash · ${cashO.length}</div></div>
+        <div class="pay-item"><div class="pay-num" style="color:#007AFF">₱${fmt(gcashO.reduce((s,o)=>s+o.total,0).toFixed(0))}</div><div class="pay-lbl">📱 GCash · ${gcashO.length}</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">⏰ Sales by Hour</span><span class="card-sub">Peak: ${peakLabel}</span></div>
+      <div class="bar-chart"><div class="bars">
+        ${Object.entries(hmap).map(([h,v]) => `
+          <div class="bar-col">
+            <div class="bar-val">${v>0?fmtK(v):''}</div>
+            <div class="bar-fill" style="height:${v?Math.max(4,(v/maxH)*50):2}px;background:${v===peakH[1]&&v>0?'var(--red)':v>0?'var(--yellow)':'var(--blue-light)'}"></div>
+            <div class="bar-lbl">${h%12||12}${Number(h)<12?'a':'p'}</div>
+          </div>`).join('')}
+      </div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🗂️ By Category</span><span class="card-sub">${fmtDateLabel(dateStr)}</span></div>
+      ${categoryBreakdown(rows)}
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items</span><span class="card-sub">Top 20</span></div>
+      ${rankList(items)}
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🧾 Order Log</span><span class="card-sub">${orders.length} orders</span></div>
+      ${orderLog(rows)}
+    </div>`;
+}
+
+// ── ORDER LOG ──
+function fmtLogTime(t){
+  if(!t) return '';
+  const s = String(t).trim();
+  if(s.includes('T')){ const tp=s.split('T')[1]; if(tp){ const p=tp.split(':'); let h=parseInt(p[0]),m=parseInt(p[1]); if(!isNaN(h)&&!isNaN(m)){ const ap=h>=12?'PM':'AM'; h=h%12||12; return h+':'+String(m).padStart(2,'0')+' '+ap; } } }
+  if(s.indexOf(':')>-1){ const p=s.split(':'); let h=parseInt(p[0]),m=parseInt(p[1]); if(!isNaN(h)&&!isNaN(m)&&h>=0&&h<=23){ const ap=h>=12?'PM':'AM'; h=h%12||12; return h+':'+String(m).padStart(2,'0')+' '+ap; } }
+  return s;
+}
+
+function orderLog(rows){
+  if(!rows.length) return '<div class="empty">No orders</div>';
+  const map = {};
+  rows.forEach(r => {
+    const k = String(r.queue||'').replace('#','').trim()||'unknown';
+    if(!map[k]) map[k] = {queue:r.queue||k, customer:r.customer||'', payment:r.payment||'Cash', total:0, time:r.timeCreated||r.time||'', itemMap:{}};
+    const t = parseFloat(r.order_total)||0;
+    if(t>0) map[k].total = t;
+    if(r.payment) map[k].payment = r.payment;
+    const name = String(r.item||'').trim();
+    const qty = parseInt(r.qty)||1;
+    if(name) map[k].itemMap[name] = (map[k].itemMap[name]||0)+qty;
+  });
+  Object.values(map).forEach(o => { o.items = Object.entries(o.itemMap).map(([n,q]) => q+'x '+n); });
+  const list = Object.values(map).sort((a,b) => {
+    const na=parseInt(String(a.queue).replace(/\D/g,''))||0;
+    const nb=parseInt(String(b.queue).replace(/\D/g,''))||0;
+    return nb-na;
+  });
+  return '<div class="rank-list">'+list.map(o=>`
+    <div class="order-log-item">
+      <div class="order-log-top">
+        <div class="order-log-num">${o.queue}</div>
+        <div class="order-log-cust">${o.customer||'—'}</div>
+        <span class="order-log-pay ${o.payment==='GCash'?'pay-gcash':'pay-cash'}">${o.payment==='GCash'?'📱 GCash':'💵 Cash'}</span>
+        <div class="order-log-total">&#x20B1;${fmt(o.total.toFixed(0))}</div>
+      </div>
+      <div class="order-log-items">${o.items.join(' · ')}</div>
+      <div class="order-log-time">${fmtLogTime(o.time)}</div>
+    </div>`).join('')+'</div>';
+}
+
+// ── TODAY ──
+function renderToday(){
+  const rows = rawRows.filter(r => r.date===selectedDate);
+  document.getElementById('today-body').innerHTML = buildDayCard(rows, selectedDate);
+}
+
+// ── WEEKLY ──
+function renderWeekly(){
+  const days = []; for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); days.push(d.toISOString().split('T')[0]); }
+  const todayStr = today();
+
+  const dayTotals = days.map(d => {
+    const ds = dailySummary.find(s => s.date===d);
+    return {date:d, revenue:ds?ds.revenue:0, orders:ds?ds.orders:0, label:new Date(d+'T00:00:00').toLocaleDateString([],{weekday:'short'})};
+  });
+
+  const maxR = Math.max(...dayTotals.map(d=>d.revenue), 1);
+  const wRev = dayTotals.reduce((s,d)=>s+d.revenue,0);
+  const wOrders = dayTotals.reduce((s,d)=>s+d.orders,0);
+  const active = dayTotals.filter(d=>d.revenue>0);
+  const best = dayTotals.reduce((a,b)=>b.revenue>a.revenue?b:a, dayTotals[0]);
+  const worst = active.length>1 ? active.reduce((a,b)=>b.revenue<a.revenue?b:a, active[0]) : null;
+
+  const weekRows = rawRows.filter(r=>days.includes(r.date));
+  const hmap={}; for(let h=6;h<=22;h++) hmap[h]=0;
+  weekRows.forEach(r=>{ const h=getHour(r.time); if(h>=6&&h<=22) hmap[h]+=(parseFloat(r.subtotal)||0); });
+  const sortedH = Object.entries(hmap).filter(([h,v])=>v>0).sort((a,b)=>b[1]-a[1]);
+  const top3=sortedH.slice(0,3), slow3=sortedH.slice(-3).reverse();
+  const weekItems = getItemsFromRows(weekRows, 20);
+
+  document.getElementById('weekly-body').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📅 This Week</span><span class="card-sub">Last 7 days</span></div>
+      <div class="bar-chart"><div class="week-bars">
+        ${dayTotals.map(d=>`
+          <div class="week-col">
+            <div class="week-val">${d.revenue>0?fmtK(d.revenue):''}</div>
+            <div class="week-fill" style="height:${d.revenue?Math.max(4,(d.revenue/maxR)*70):2}px;background:${d.date===todayStr?'var(--yellow)':d.revenue>0?'var(--navy-light)':'var(--blue-light)'}"></div>
+            <div class="week-lbl">${d.label}</div>
+          </div>`).join('')}
+      </div></div>
+      <div class="week-stats">
+        <div class="ws"><div class="ws-num">${fmtK(wRev)}</div><div class="ws-lbl">Week Total</div></div>
+        <div class="ws"><div class="ws-num">${fmtK(active.length?wRev/active.length:0)}</div><div class="ws-lbl">Daily Avg</div></div>
+        <div class="ws"><div class="ws-num">${wOrders}</div><div class="ws-lbl">Orders</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📊 Day Highlights</span></div>
+      <div class="card-body">
+        <div class="hl-row"><div><div class="hl-lbl" style="color:var(--green)">🏆 Best Day</div><div style="font-weight:800;font-size:12px;">${fmtDateLabel(best.date)}</div></div><div class="hl-val">₱${fmt(best.revenue.toFixed(0))}</div></div>
+        ${worst?`<div class="hl-row"><div><div class="hl-lbl" style="color:var(--gray)">📉 Slowest</div><div style="font-weight:800;font-size:12px;">${fmtDateLabel(worst.date)}</div></div><div class="hl-val">₱${fmt(worst.revenue.toFixed(0))}</div></div>`:''}
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🗂️ By Category This Week</span></div>
+      ${categoryBreakdown(weekRows)}
+    </div>
+    ${top3.length?`<div class="card">
+      <div class="card-hd"><span class="card-title">⏰ Peak Hours This Week</span></div>
+      <div class="card-body">
+        <div style="font-size:10px;font-weight:800;color:var(--green);margin-bottom:6px;">🔥 BUSIEST</div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          ${top3.map(([h,v])=>`<div style="flex:1;background:var(--yellow-light);border:2px solid var(--yellow);border-radius:8px;padding:6px;text-align:center;"><div style="font-family:'Black Han Sans',sans-serif;font-size:14px;">${h%12||12}${Number(h)<12?'AM':'PM'}</div><div style="font-size:9px;font-weight:800;color:var(--gray);">${fmtK(v)}</div></div>`).join('')}
+        </div>
+        ${slow3.length?`<div style="font-size:10px;font-weight:800;color:var(--gray);margin-bottom:6px;">😴 SLOWEST</div>
+        <div style="display:flex;gap:6px;">
+          ${slow3.map(([h,v])=>`<div style="flex:1;background:var(--offwhite);border:2px solid var(--blue-light);border-radius:8px;padding:6px;text-align:center;"><div style="font-family:'Black Han Sans',sans-serif;font-size:14px;">${h%12||12}${Number(h)<12?'AM':'PM'}</div><div style="font-size:9px;font-weight:800;color:var(--gray);">${fmtK(v)}</div></div>`).join('')}
+        </div>`:''}
+      </div>
+    </div>`:''}
+    <div class="card">
+      <div class="card-hd"><span class="card-title">🏆 Top Items This Week</span><span class="card-sub">Top 20</span></div>
+      ${rankList(weekItems)}
+    </div>`;
+}
+
+// ── ITEMS ──
+function setItemFilter(f){
+  itemFilter=f;
+  document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.fpill')[['today','week','alltime'].indexOf(f)].classList.add('active');
+  renderItems();
+}
+
+function renderItems(){
+  const todayStr=today();
+  const weekDays=[]; for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); weekDays.push(d.toISOString().split('T')[0]); }
+
+  let html='';
+  if(itemFilter==='today'){
+    const rows=rawRows.filter(r=>r.date===todayStr);
+    html=`
+      <div class="card"><div class="card-hd"><span class="card-title">🗂️ By Category — Today</span></div>${categoryBreakdown(rows)}</div>
+      <div class="card"><div class="card-hd"><span class="card-title">🏆 Top Items — Today</span><span class="card-sub">Top 20</span></div>${rankList(getItemsFromRows(rows,20))}</div>`;
+  } else if(itemFilter==='week'){
+    const rows=rawRows.filter(r=>weekDays.includes(r.date));
+    html=`
+      <div class="card"><div class="card-hd"><span class="card-title">🗂️ By Category — This Week</span></div>${categoryBreakdown(rows)}</div>
+      <div class="card"><div class="card-hd"><span class="card-title">🏆 Top Items — This Week</span><span class="card-sub">Top 20</span></div>${rankList(getItemsFromRows(rows,20))}</div>`;
+  } else {
+    html=`
+      <div class="card"><div class="card-hd"><span class="card-title">🗂️ By Category — All Time</span></div>${categoryListAllTime(categorySummary)}</div>
+      <div class="card"><div class="card-hd"><span class="card-title">🏆 Top Items — All Time</span><span class="card-sub">Top 20</span></div>${rankListAllTime(itemSummary.slice(0,20))}</div>`;
+  }
+  document.getElementById('items-body').innerHTML=html;
+}
+
+// ── HISTORY ──
+function renderHistory(){
+  if(!dailySummary.length){ document.getElementById('history-body').innerHTML='<div class="empty">No history yet</div>'; return; }
+  const sorted=[...dailySummary].sort((a,b)=>b.date.localeCompare(a.date));
+  const allRev=dailySummary.reduce((s,d)=>s+d.revenue,0);
+  const allOrders=dailySummary.reduce((s,d)=>s+d.orders,0);
+  const allDays=dailySummary.length;
+
+  document.getElementById('history-body').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📈 All-Time Summary</span></div>
+      <div class="stat-grid">
+        <div class="stat-item"><div class="stat-num">${fmtK(allRev)}</div><div class="stat-lbl">Total Revenue</div></div>
+        <div class="stat-item"><div class="stat-num">${allOrders}</div><div class="stat-lbl">Total Orders</div></div>
+        <div class="stat-item"><div class="stat-num">${fmtK(allDays?allRev/allDays:0)}</div><div class="stat-lbl">Daily Avg</div></div>
+        <div class="stat-item"><div class="stat-num">${allDays}</div><div class="stat-lbl">Days Open</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><span class="card-title">📋 Sales History</span><span class="card-sub">${allDays} days</span></div>
+      <div class="rank-list">
+        ${sorted.map(d=>`
+          <div class="history-item" onclick="openDetail('${d.date}')">
+            <div>
+              <div class="hist-date">${fmtDateLabel(d.date)}</div>
+              <div class="hist-sub">${d.orders} orders · 💵₱${fmt(d.cash)} 📱₱${fmt(d.gcash)}</div>
+            </div>
+            <div style="text-align:right;flex:1;"><div class="hist-rev">₱${fmt(d.revenue.toFixed(0))}</div></div>
+            <div class="hist-arrow">›</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+// ── DAY DETAIL ──
+function openDetail(dateStr){
+  const rows=rawRows.filter(r=>r.date===dateStr);
+  document.getElementById('detail-title').textContent=fmtDateLabel(dateStr);
+  if(rows.length){
+    document.getElementById('detail-body').innerHTML=buildDayCard(rows,dateStr);
+  } else {
+    const ds=dailySummary.find(d=>d.date===dateStr);
+    if(ds){
+      document.getElementById('detail-body').innerHTML=`
+        <div class="card">
+          <div class="big-stat"><div class="big-num">₱${fmt(ds.revenue.toFixed(0))}</div><div class="big-lbl">Total Revenue</div></div>
+          <div class="stat-grid">
+            <div class="stat-item"><div class="stat-num">${ds.orders}</div><div class="stat-lbl">Orders</div></div>
+            <div class="stat-item"><div class="stat-num">₱${fmt((ds.orders?ds.revenue/ds.orders:0).toFixed(0))}</div><div class="stat-lbl">Avg Order</div></div>
+          </div>
+          <div class="pay-row">
+            <div class="pay-item"><div class="pay-num">₱${fmt(ds.cash.toFixed(0))}</div><div class="pay-lbl">💵 Cash</div></div>
+            <div class="pay-item"><div class="pay-num" style="color:#007AFF">₱${fmt(ds.gcash.toFixed(0))}</div><div class="pay-lbl">📱 GCash</div></div>
+          </div>
+        </div>
+        <div class="empty" style="padding:20px;">📊 Detailed order log only available for the last 7 days.</div>`;
+    }
+  }
+  document.getElementById('day-overlay').classList.add('open');
+}
+function closeDetail(){ document.getElementById('day-overlay').classList.remove('open'); }
+
+// ── INSIGHTS ──
+function renderInsights(){
+  const insights=[];
+  const todayStr=today();
+  const weekDays=[]; for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); weekDays.push(d.toISOString().split('T')[0]); }
+  const prevWeekDays=[]; for(let i=13;i>=7;i--){ const d=new Date(); d.setDate(d.getDate()-i); prevWeekDays.push(d.toISOString().split('T')[0]); }
+
+  const todayRows=rawRows.filter(r=>r.date===todayStr);
+  const weekRows=rawRows.filter(r=>weekDays.includes(r.date));
+  const weekSummary=dailySummary.filter(d=>weekDays.includes(d.date));
+  const prevWeekSummary=dailySummary.filter(d=>prevWeekDays.includes(d.date));
+
+  const todayOrders=getOrders(todayRows);
+  const todayRev=todayOrders.reduce((s,o)=>s+o.total,0);
+  const weekRev=weekSummary.reduce((s,d)=>s+d.revenue,0);
+  const prevWeekRev=prevWeekSummary.reduce((s,d)=>s+d.revenue,0);
+  const activeDays=weekSummary.filter(d=>d.revenue>0).length||1;
+  const weekDailyAvg=weekRev/activeDays;
+
+  const allRev=dailySummary.reduce((s,d)=>s+d.revenue,0);
+  const allOrders=dailySummary.reduce((s,d)=>s+d.orders,0);
+  const allDays=dailySummary.length||1;
+
+  if(todayOrders.length>0){
+    const diff=todayRev-weekDailyAvg;
+    const pct=weekDailyAvg>0?Math.abs(diff/weekDailyAvg*100).toFixed(0):0;
+    if(diff>0) insights.push({icon:'📈',title:`Today is ${pct}% above your daily average`,desc:`Today: ₱${fmt(todayRev.toFixed(0))} vs avg ₱${fmt(weekDailyAvg.toFixed(0))}. Great day!`,badge:'badge-green',badgeText:'Above Average'});
+    else if(diff<0) insights.push({icon:'📉',title:`Today is ${pct}% below your daily average`,desc:`Today: ₱${fmt(todayRev.toFixed(0))} vs avg ₱${fmt(weekDailyAvg.toFixed(0))}. Keep pushing!`,badge:'badge-yellow',badgeText:'Below Average'});
+  }
+
+  if(weekRev>0&&prevWeekRev>0){
+    const diff=weekRev-prevWeekRev;
+    const pct=Math.abs(diff/prevWeekRev*100).toFixed(0);
+    if(diff>0) insights.push({icon:'🚀',title:`This week is up ${pct}% vs last week`,desc:`This week: ₱${fmt(weekRev.toFixed(0))} vs last: ₱${fmt(prevWeekRev.toFixed(0))}.`,badge:'badge-green',badgeText:'Growing'});
+    else insights.push({icon:'⚠️',title:`This week is down ${pct}% vs last week`,desc:`This week: ₱${fmt(weekRev.toFixed(0))} vs last: ₱${fmt(prevWeekRev.toFixed(0))}. Consider a promo.`,badge:'badge-red',badgeText:'Declining'});
+  }
+
+  insights.push({icon:'🏪',title:`₱${fmt(allRev.toFixed(0))} total revenue all time`,desc:`${allOrders} orders across ${allDays} days. Daily avg: ₱${fmt((allRev/allDays).toFixed(0))}.`,badge:'badge-blue',badgeText:'All Time'});
+
+  if(itemSummary.length>0){
+    const top=itemSummary[0];
+    insights.push({icon:'🏆',title:`${top.item} is your #1 all-time seller`,desc:`Sold ${top.totalQty}x for ₱${fmt(top.totalRevenue.toFixed(0))} total. Always keep it stocked!`,badge:'badge-green',badgeText:'Best Seller'});
+  }
+
+  if(categorySummary.length>0){
+    const top=categorySummary[0];
+    insights.push({icon:'🗂️',title:`${top.category} is your top category`,desc:`₱${fmt(top.totalRevenue.toFixed(0))} from ${top.totalQty} items sold all time.`,badge:'badge-green',badgeText:'Top Category'});
+  }
+
+  const weekItems=getItemsFromRows(weekRows,5);
+  if(weekItems.length>0){
+    const top=weekItems[0];
+    insights.push({icon:'🔥',title:`${top.name} is your #1 this week`,desc:`Sold ${top.qty}x this week for ₱${fmt(top.rev.toFixed(0))}.`,badge:'badge-green',badgeText:'This Week'});
+  }
+
+  const hmap={}; for(let h=6;h<=22;h++) hmap[h]=0;
+  weekRows.forEach(r=>{ const h=getHour(r.time); if(h>=6&&h<=22) hmap[h]+=(parseFloat(r.subtotal)||0); });
+  const peakH=Object.entries(hmap).sort((a,b)=>b[1]-a[1])[0];
+  if(peakH&&peakH[1]>0){
+    const h=Number(peakH[0]);
+    insights.push({icon:'🕐',title:`Peak hour: ${h%12||12}${h<12?'AM':'PM'}–${(h+1)%12||12}${(h+1)<12?'AM':'PM'}`,desc:`Busiest hour this week with ₱${fmt(peakH[1].toFixed(0))} in sales.`,badge:'badge-yellow',badgeText:'Peak Hour'});
+  }
+
+  if(allOrders>0){
+    const avg=allRev/allOrders;
+    if(avg<100) insights.push({icon:'💡',title:`Avg order ₱${avg.toFixed(0)} — room to grow`,desc:`Try upselling combos or drinks with every order!`,badge:'badge-yellow',badgeText:'Tip'});
+    else insights.push({icon:'💪',title:`Strong avg order value of ₱${avg.toFixed(0)}`,desc:`Customers are spending well. Your combos and upsells are working!`,badge:'badge-green',badgeText:'Healthy'});
+  }
+
+  if(!insights.length){ document.getElementById('insights-body').innerHTML='<div class="empty">📊 Not enough data yet.</div>'; return; }
+
+  document.getElementById('insights-body').innerHTML=`
+    <div class="card">
+      <div class="card-hd"><span class="card-title">💡 Business Insights</span><span class="card-sub">Auto-generated</span></div>
+      <div>${insights.map(ins=>`
+        <div class="insight-item">
+          <div class="insight-icon">${ins.icon}</div>
+          <div class="insight-text">
+            <div class="insight-title">${ins.title}</div>
+            <div class="insight-desc">${ins.desc}</div>
+            <span class="insight-badge ${ins.badge}">${ins.badgeText}</span>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+let toastT;
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
+
+document.getElementById('date-picker').value=selectedDate;
+loadData();
+setInterval(loadData,5*60*1000);
+</script>
+</body>
+</html>
