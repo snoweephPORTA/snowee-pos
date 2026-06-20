@@ -1,0 +1,25 @@
+{
+  "name": "Snowee POS V2",
+  "short_name": "Snowee V2",
+  "description": "Snowee PH Point of Sale — Version 2",
+  "start_url": "./snowee-v2.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1B3A6B",
+  "theme_color": "#1B3A6B",
+  "icons": [
+    {
+      "src": "snowee-v2-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "snowee-v2-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
